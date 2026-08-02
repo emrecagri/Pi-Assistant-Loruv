@@ -184,7 +184,7 @@ sudo systemctl status docker
 ## Proje Yapısı
 
 ```text
-pi-assistant/
+pi-assistant-loruv/
 ├── bot.py
 ├── compose.yaml
 ├── Dockerfile
@@ -299,13 +299,13 @@ git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
 Örnek:
 
 ```bash
-git clone https://github.com/example/pi-assistant.git
+git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
 ```
 
 ### 3. Proje klasörüne girin
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 ```
 
 ### 4. Ortam dosyasını oluşturun
@@ -379,24 +379,24 @@ Dosyalar SFTP, SCP, File Browser veya başka bir dosya aktarım yöntemiyle yük
 Proje şu dizinde tutulacaktır:
 
 ```text
-/srv/docker/pi-assistant
+/srv/docker/pi-assistant-loruv
 ```
 
 ### 1. Proje klasörünü oluşturun
 
 ```bash
-sudo mkdir -p /srv/docker/pi-assistant
+sudo mkdir -p /srv/docker/pi-assistant-loruv
 ```
 
 ### 2. Klasör izinlerini düzenleyin
 
 ```bash
-sudo chown -R $USER:$USER /srv/docker/pi-assistant
+sudo chown -R $USER:$USER /srv/docker/pi-assistant-loruv
 ```
 
 ### 3. Proje dosyalarını yükleyin
 
-Aşağıdaki dosyaları `/srv/docker/pi-assistant` içerisine yükleyin:
+Aşağıdaki dosyaları `/srv/docker/pi-assistant-loruv` içerisine yükleyin:
 
 ```text
 bot.py
@@ -411,13 +411,13 @@ README.md
 Ayrıca `data` klasörünü oluşturun:
 
 ```bash
-mkdir -p /srv/docker/pi-assistant/data
+mkdir -p /srv/docker/pi-assistant-loruv/data
 ```
 
 ### 4. Dosyaların doğru yerde olduğunu kontrol edin
 
 ```bash
-ls -la /srv/docker/pi-assistant
+ls -la /srv/docker/pi-assistant-loruv
 ```
 
 Beklenen görünüm:
@@ -436,7 +436,7 @@ data
 ### 5. Proje klasörüne girin
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 ```
 
 ### 6. `.env` dosyasını oluşturun
@@ -490,7 +490,7 @@ sudo docker compose logs -f
 İlk image oluşturma işlemi terminal üzerinden yapılabilir:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --build
 ```
 
@@ -500,7 +500,7 @@ Portainer içinde şu yolu takip edin:
 
 ```text
 Containers
-→ pi-assistant
+→ pi-assistant-loruv
 ```
 
 Buradan aşağıdaki işlemleri yapabilirsiniz:
@@ -516,7 +516,7 @@ Buradan aşağıdaki işlemleri yapabilirsiniz:
 
 ```text
 Containers
-→ pi-assistant
+→ pi-assistant-loruv
 → Logs
 ```
 
@@ -524,7 +524,7 @@ Containers
 
 ```text
 Containers
-→ pi-assistant
+→ pi-assistant-loruv
 → Restart
 ```
 
@@ -537,7 +537,7 @@ Sadece Portainer üzerinde `Restart` seçeneğini kullanmak, mevcut image’ı y
 Bu durumda şu komut kullanılmalıdır:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --build
 ```
 
@@ -597,7 +597,7 @@ Python kodunda değişiklik yaptıktan sonra container’ın yalnızca yeniden b
 Bu nedenle image yeniden oluşturulmalıdır:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --build
 ```
 
@@ -613,7 +613,7 @@ Bu komut:
 Yeni bir Python kütüphanesi eklendiğinde:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --build
 ```
 
@@ -626,7 +626,7 @@ komutu tekrar çalıştırılmalıdır.
 Dockerfile üzerinde değişiklik yapıldıysa:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --build
 ```
 
@@ -637,7 +637,7 @@ komutu kullanılmalıdır.
 Compose dosyası değiştirildikten sonra:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d
 ```
 
@@ -654,7 +654,7 @@ sudo docker compose up -d --build
 `.env` dosyası değiştirildikten sonra container’ın yeniden oluşturulması gerekir:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --force-recreate
 ```
 
@@ -670,7 +670,7 @@ sudo docker compose up -d
 Repository Git ile kurulmuşsa:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 git pull
 ```
 
@@ -683,7 +683,7 @@ sudo docker compose up -d --build
 Tek seferde:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 git pull
 sudo docker compose up -d --build
 ```
@@ -693,7 +693,7 @@ sudo docker compose up -d --build
 Docker eski katmanları kullanıyor veya değişiklikler uygulanmıyorsa:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose build --no-cache
 sudo docker compose up -d
 ```
@@ -715,7 +715,7 @@ sudo docker compose logs -f
 Canlı logları görüntülemek için:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose logs -f
 ```
 
@@ -728,7 +728,7 @@ sudo docker compose logs --tail=100
 Sadece Pi Assistant container loglarını görüntülemek için:
 
 ```bash
-sudo docker logs -f pi-assistant
+sudo docker logs -f pi-assistant-loruv
 ```
 
 Log takibinden çıkmak için:
@@ -816,7 +816,7 @@ sudo docker compose logs -f
 Logları görüntüleyin:
 
 ```bash
-sudo docker logs --tail=100 pi-assistant
+sudo docker logs --tail=100 pi-assistant-loruv
 ```
 
 `.env` dosyasını kontrol edin:
@@ -876,7 +876,7 @@ Sadece container yeniden başlatılmış olabilir.
 Image’ı yeniden oluşturun:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --build
 ```
 
@@ -1072,7 +1072,7 @@ sudo systemctl status docker
 ## Project Structure
 
 ```text
-pi-assistant/
+pi-assistant-loruv/
 ├── bot.py
 ├── compose.yaml
 ├── Dockerfile
@@ -1187,13 +1187,13 @@ git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
 Example:
 
 ```bash
-git clone https://github.com/example/pi-assistant.git
+git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
 ```
 
 ### 3. Open the project directory
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 ```
 
 ### 4. Create the environment file
@@ -1261,24 +1261,24 @@ Files may be transferred using SFTP, SCP, File Browser, or another file transfer
 ### Target directory
 
 ```text
-/srv/docker/pi-assistant
+/srv/docker/pi-assistant-loruv
 ```
 
 ### 1. Create the project directory
 
 ```bash
-sudo mkdir -p /srv/docker/pi-assistant
+sudo mkdir -p /srv/docker/pi-assistant-loruv
 ```
 
 ### 2. Configure directory ownership
 
 ```bash
-sudo chown -R $USER:$USER /srv/docker/pi-assistant
+sudo chown -R $USER:$USER /srv/docker/pi-assistant-loruv
 ```
 
 ### 3. Upload the project files
 
-Upload the following files into `/srv/docker/pi-assistant`:
+Upload the following files into `/srv/docker/pi-assistant-loruv`:
 
 ```text
 bot.py
@@ -1293,19 +1293,19 @@ README.md
 Create the persistent data directory:
 
 ```bash
-mkdir -p /srv/docker/pi-assistant/data
+mkdir -p /srv/docker/pi-assistant-loruv/data
 ```
 
 ### 4. Verify the files
 
 ```bash
-ls -la /srv/docker/pi-assistant
+ls -la /srv/docker/pi-assistant-loruv
 ```
 
 ### 5. Open the project directory
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 ```
 
 ### 6. Create the `.env` file
@@ -1348,7 +1348,7 @@ Open:
 
 ```text
 Containers
-→ pi-assistant
+→ pi-assistant-loruv
 ```
 
 Portainer can be used to:
@@ -1367,7 +1367,7 @@ Restarting the container in Portainer only restarts the existing Docker image.
 When `bot.py`, `Dockerfile`, or `requirements.txt` is changed, rebuild the image:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --build
 ```
 
@@ -1413,7 +1413,7 @@ A normal container restart is not enough because `bot.py` is copied into the Doc
 Rebuild the image:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --build
 ```
 
@@ -1422,21 +1422,21 @@ sudo docker compose up -d --build
 When a Python dependency is added or changed:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --build
 ```
 
 ### After changing the `Dockerfile`
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --build
 ```
 
 ### After changing `compose.yaml`
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d
 ```
 
@@ -1451,7 +1451,7 @@ sudo docker compose up -d --build
 Recreate the container:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --force-recreate
 ```
 
@@ -1465,7 +1465,7 @@ sudo docker compose up -d
 ### Updating from GitHub
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 git pull
 sudo docker compose up -d --build
 ```
@@ -1473,7 +1473,7 @@ sudo docker compose up -d --build
 ### Rebuilding without Docker cache
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose build --no-cache
 sudo docker compose up -d
 ```
@@ -1495,7 +1495,7 @@ sudo docker compose logs -f
 View live logs:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose logs -f
 ```
 
@@ -1508,7 +1508,7 @@ sudo docker compose logs --tail=100
 View logs directly from the container:
 
 ```bash
-sudo docker logs -f pi-assistant
+sudo docker logs -f pi-assistant-loruv
 ```
 
 Exit log streaming with:
@@ -1546,7 +1546,7 @@ sudo docker compose logs -f
 ### The container keeps restarting
 
 ```bash
-sudo docker logs --tail=100 pi-assistant
+sudo docker logs --tail=100 pi-assistant-loruv
 ```
 
 Verify the environment file:
@@ -1592,7 +1592,7 @@ cat /sys/class/thermal/thermal_zone0/temp
 Rebuild the image:
 
 ```bash
-cd /srv/docker/pi-assistant
+cd /srv/docker/pi-assistant-loruv
 sudo docker compose up -d --build
 ```
 
