@@ -1,4 +1,4 @@
-# Pi Assistant
+# Pi Assistant | Raspberry Pi Telegram Docker Yönetimi
 
 > Raspberry Pi sistemlerini Telegram üzerinden izlemek ve Docker container’larını uzaktan yönetmek için geliştirilmiş, hafif ve genişletilebilir bir self-hosted yardımcı uygulama.
 
