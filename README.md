@@ -293,7 +293,7 @@ cd /srv/docker
 ### 2. Repository’yi klonlayın
 
 ```bash
-git clone https://github.com/KULLANICI_ADINIZ/pi-assistant.git
+git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
 ```
 
 Örnek:
@@ -1181,7 +1181,7 @@ cd /srv/docker
 ### 2. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/pi-assistant.git
+git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
 ```
 
 Example:
