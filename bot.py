@@ -142,7 +142,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if await reject_if_unauthorized(update):
         return
     await update.message.reply_text(
-        "✅ Pi Assistant aktif\n\n"
+        "✅ Pi Assistant Loruv aktif\n\n"
         "/durum - Sistem raporu\n"
         "/docker - Container listesi\n"
         "/baslat <ad> - Container başlat\n"
