@@ -5,8 +5,15 @@ services:
     container_name: pi-assistant-loruv
     restart: unless-stopped
 
-    env_file:
-      - .env
+    environment:
+      BOT_TOKEN: "${BOT_TOKEN}"
+      ALLOWED_USER_ID: "${ALLOWED_USER_ID}"
+      CHECK_INTERVAL: "${CHECK_INTERVAL:-60}"
+      CPU_LIMIT: "${CPU_LIMIT:-90}"
+      RAM_LIMIT: "${RAM_LIMIT:-90}"
+      DISK_LIMIT: "${DISK_LIMIT:-90}"
+      TEMP_LIMIT: "${TEMP_LIMIT:-75}"
+      PUBLIC_IP_CHECK_URL: "${PUBLIC_IP_CHECK_URL:-https://api.ipify.org}"
 
     volumes:
       - ./data:/app/data
