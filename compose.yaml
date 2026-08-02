@@ -1,0 +1,17 @@
+services:
+  pi-assistant-loruv:
+    build:
+      context: .
+    container_name: pi-assistant-loruv
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./data:/app/data
+      - /sys/class/thermal:/host/sys/class/thermal:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    security_opt:
+      - no-new-privileges:true
