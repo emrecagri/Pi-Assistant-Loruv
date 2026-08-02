@@ -18,6 +18,7 @@
 * [Telegram Botu Oluşturma](#telegram-botu-oluşturma)
 * [Git ile Kurulum](#git-ile-kurulum)
 * [Dosya Yükleyerek Kurulum](#dosya-yükleyerek-kurulum)
+* [Portainer Repository ile Kurulum ve Total Control](#portainer-repository-ile-kurulum-ve-total-control)
 * [Portainer Üzerinden Yönetim](#portainer-üzerinden-yönetim)
 * [Yapılandırma](#yapılandırma)
 * [Kod Güncelleme](#kod-güncelleme)
@@ -35,6 +36,7 @@
 * [Creating a Telegram Bot](#creating-a-telegram-bot)
 * [Installation with Git](#installation-with-git)
 * [Manual File Installation](#manual-file-installation)
+* [Portainer Repository Installation and Total Control](#portainer-repository-installation-and-total-control)
 * [Managing with Portainer](#managing-with-portainer)
 * [Configuration](#configuration)
 * [Updating the Code](#updating-the-code)
@@ -482,6 +484,141 @@ sudo docker compose ps
 ```bash
 sudo docker compose logs -f
 ```
+
+---
+
+
+## Portainer Repository ile Kurulum ve Total Control
+
+Pi Assistant terminal üzerinden `docker compose` ile oluşturulduğunda Portainer stack’i algılayabilir ancak yönetim yetkisini **Limited** olarak gösterebilir.
+
+Stack’i terminalden yönetmeye devam edebilir veya Portainer’ın **Repository** yöntemiyle yeniden oluşturarak **Total control** sağlayabilirsiniz.
+
+### Terminalden yönetim
+
+Önce proje dizinine geçin:
+
+```bash
+cd /srv/docker/pi-assistant-loruv
+```
+
+Container’ı yeniden başlatmak için:
+
+```bash
+sudo docker compose restart
+```
+
+`bot.py`, `Dockerfile` veya `requirements.txt` gibi dosyalarda değişiklik yaptıktan sonra image’ı yeniden oluşturmak için:
+
+```bash
+sudo docker compose up -d --build
+```
+
+Container’ı durdurup kaldırmak için:
+
+```bash
+sudo docker compose down
+```
+
+### Portainer’da Total control ile kurulum
+
+Daha önce terminal üzerinden oluşturulan stack çalışıyorsa önce kaldırın:
+
+```bash
+cd /srv/docker/pi-assistant-loruv
+sudo docker compose down
+```
+
+> `docker compose down -v` kullanmayın. `-v` seçeneği volume verilerini silebilir.
+
+Ardından Portainer’da şu yolu izleyin:
+
+```text
+Stacks
+→ Add stack
+→ Repository
+```
+
+Aşağıdaki bilgileri girin:
+
+| Alan | Değer |
+| --- | --- |
+| Name | `pi-assistant-loruv` |
+| Repository URL | `https://github.com/emrecagri/Pi-Assistant-Loruv` |
+| Repository reference | `main` |
+| Compose path | `compose.yaml` |
+
+Repository herkese açıksa kimlik doğrulama bilgisi girmeniz gerekmez.
+
+### Ortam değişkenlerini girin
+
+Portainer sayfasındaki şu bölümü bulun:
+
+```text
+Environment variables
+```
+
+**Advanced mode** seçeneğine basın ve aşağıdaki değerleri yapıştırın:
+
+```env
+BOT_TOKEN=GERCEK_TELEGRAM_BOT_TOKENIN
+ALLOWED_USER_ID=GERCEK_TELEGRAM_KULLANICI_IDN
+CHECK_INTERVAL=60
+CPU_LIMIT=90
+RAM_LIMIT=90
+DISK_LIMIT=90
+TEMP_LIMIT=75
+PUBLIC_IP_CHECK_URL=https://api.ipify.org
+```
+
+Aşağıdaki iki alanı kendi bilgilerinizle değiştirin:
+
+```text
+BOT_TOKEN
+ALLOWED_USER_ID
+```
+
+Gerçek bot tokeni ve kullanıcı ID’si GitHub repository’sine yazılmaz. Bu bilgiler yalnızca Portainer’daki stack ortam değişkenleri içinde saklanır.
+
+### Stack’i oluşturun
+
+Ayarları tamamladıktan sonra:
+
+```text
+Deploy the stack
+```
+
+butonuna basın.
+
+Portainer repository’yi klonlar, image’ı oluşturur ve container’ı başlatır.
+
+Kurulum tamamlandıktan sonra stack Portainer’da **Total control** olarak görünür. Böylece aşağıdaki işlemler Portainer üzerinden yapılabilir:
+
+* Stack’i başlatma ve durdurma
+* Container’ı yeniden başlatma
+* Logları görüntüleme
+* Ortam değişkenlerini güncelleme
+* Repository’deki yeni kodu çekip yeniden dağıtma
+* Stack’i yeniden oluşturma
+
+GitHub repository’sinde kod güncellendiğinde şu yolu kullanabilirsiniz:
+
+```text
+Stacks
+→ pi-assistant-loruv
+→ Pull and redeploy
+```
+
+### Terminal kurulumu hakkında not
+
+Projeyi Portainer yerine terminalden çalıştırırsanız proje klasöründeki `.env` dosyası otomatik olarak okunur:
+
+```bash
+cd /srv/docker/pi-assistant-loruv
+sudo docker compose up -d --build
+```
+
+> Aynı container’ı terminal ve Portainer üzerinden aynı anda oluşturmaya çalışmayın. Yönetim yöntemi olarak bunlardan birini tercih edin.
 
 ---
 
@@ -1337,6 +1474,139 @@ sudo docker compose ps
 ```bash
 sudo docker compose logs -f
 ```
+
+---
+
+
+## Portainer Repository Installation and Total Control
+
+When Pi Assistant is created from the terminal with `docker compose`, Portainer may detect the stack but display its management level as **Limited**.
+
+You can continue managing it from the terminal or recreate it through Portainer’s **Repository** method to obtain **Total control**.
+
+### Managing from the terminal
+
+Open the project directory:
+
+```bash
+cd /srv/docker/pi-assistant-loruv
+```
+
+Restart the container:
+
+```bash
+sudo docker compose restart
+```
+
+Rebuild the image after changing files such as `bot.py`, `Dockerfile`, or `requirements.txt`:
+
+```bash
+sudo docker compose up -d --build
+```
+
+Stop and remove the container:
+
+```bash
+sudo docker compose down
+```
+
+### Deploying with Total control in Portainer
+
+If the stack is already running from a terminal deployment, remove it first:
+
+```bash
+cd /srv/docker/pi-assistant-loruv
+sudo docker compose down
+```
+
+> Do not use `docker compose down -v`. The `-v` option may delete volume data.
+
+Then open the following page in Portainer:
+
+```text
+Stacks
+→ Add stack
+→ Repository
+```
+
+Enter the following values:
+
+| Field | Value |
+| --- | --- |
+| Name | `pi-assistant-loruv` |
+| Repository URL | `https://github.com/emrecagri/Pi-Assistant-Loruv` |
+| Repository reference | `main` |
+| Compose path | `compose.yaml` |
+
+Authentication is not required when the repository is public.
+
+### Add the environment variables
+
+Find the following section in Portainer:
+
+```text
+Environment variables
+```
+
+Select **Advanced mode** and paste:
+
+```env
+BOT_TOKEN=YOUR_REAL_TELEGRAM_BOT_TOKEN
+ALLOWED_USER_ID=YOUR_REAL_TELEGRAM_USER_ID
+CHECK_INTERVAL=60
+CPU_LIMIT=90
+RAM_LIMIT=90
+DISK_LIMIT=90
+TEMP_LIMIT=75
+PUBLIC_IP_CHECK_URL=https://api.ipify.org
+```
+
+Replace the following fields with your own values:
+
+```text
+BOT_TOKEN
+ALLOWED_USER_ID
+```
+
+The real bot token and user ID are not written to the GitHub repository. They are stored only in the Portainer stack environment variables.
+
+### Deploy the stack
+
+After completing the settings, click:
+
+```text
+Deploy the stack
+```
+
+Portainer clones the repository, builds the image, and starts the container.
+
+After deployment, the stack appears with **Total control** in Portainer. You can then:
+
+* Start and stop the stack
+* Restart the container
+* View logs
+* Update environment variables
+* Pull new code from the repository and redeploy
+* Recreate the stack
+
+After updating the GitHub repository, use:
+
+```text
+Stacks
+→ pi-assistant-loruv
+→ Pull and redeploy
+```
+
+### Note about terminal deployments
+
+When the project is deployed from the terminal instead of Portainer, the `.env` file in the project directory is read automatically:
+
+```bash
+cd /srv/docker/pi-assistant-loruv
+sudo docker compose up -d --build
+```
+
+> Do not try to create the same container from the terminal and Portainer at the same time. Choose one management method.
 
 ---
 
