@@ -1,4 +1,4 @@
-PI ASSISTANT - KURULUM
+PI ASSISTANT - KURULUMU
 
 1) Bu klasörü Raspberry Pi üzerinde şuraya çıkar:
    /srv/docker/pi-assistant-loruv
