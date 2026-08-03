@@ -6,8 +6,8 @@
 
 ---
 <p align="center">
-  <img src="IMG_5116.PNG" alt="Screenshot 1" width="350">
-  <img src="IMG_5117.PNG" alt="Screenshot 2" width="350">
+  <img src="IMG_5116.PNG" alt="Screenshot 1" width="450">
+  <img src="IMG_5117.PNG" alt="Screenshot 2" width="450">
 </p>
 ---
 
