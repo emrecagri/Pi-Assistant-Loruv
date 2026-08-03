@@ -5,6 +5,9 @@
 > A lightweight and extensible self-hosted assistant for monitoring Raspberry Pi systems and remotely managing Docker containers through Telegram.
 
 ---
+![Screenshot 1](IMG_5116.PNG)
+![Screenshot 2](IMG_5117.PNG)
+---
 
 ## İçindekiler / Table of Contents
 
