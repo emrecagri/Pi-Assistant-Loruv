@@ -1,24 +1,484 @@
 services:
-  pi-assistant-loruv:
-    build:
-      context: .
+  pi-assistant:
+    # ==========================================================
+    # PI ASSISTANT LORUV V5
+    # Raspberry Pi + Docker + Telegram yönetim botu
+    # ==========================================================
+
+    # Proje klasöründeki Dockerfile kullanılarak image oluşturulur.
+    build: .
+
     container_name: pi-assistant-loruv
+
+    # Raspberry Pi veya Docker yeniden başladığında bot da otomatik başlar.
     restart: unless-stopped
 
+    # PID 1 / zombie process yönetimini iyileştirir.
+    init: true
+
+    # ==========================================================
+    # HOST AĞI
+    # ==========================================================
+    #
+    # Raspberry Pi'nin gerçek ağ arayüzlerini, IP adreslerini,
+    # listening portlarını ve diğer ağ bilgilerini görebilmek için
+    # container host network kullanır.
+    #
+    # Bu nedenle ayrıca "ports:" tanımlamaya gerek yoktur.
+    # ==========================================================
+
+    network_mode: host
+
+    # ==========================================================
+    # HOST PROCESS NAMESPACE
+    # ==========================================================
+    #
+    # Raspberry Pi üzerindeki gerçek process/PID'leri görebilmek için.
+    #
+    # Bunun yanında aşağıda /proc da /host/proc olarak mount edilir.
+    # Bot psutil.PROCFS_PATH=/host/proc kullanarak gerçek host
+    # süreçlerini okuyabilir.
+    # ==========================================================
+
+    pid: host
+
+    # ==========================================================
+    # ORTAM DEĞİŞKENLERİ
+    # ==========================================================
+    #
+    # ${DEGISKEN}
+    #   -> Değer dışarıdan verilmelidir.
+    #
+    # ${DEGISKEN:-varsayilan}
+    #   -> Değer verilmezse sağdaki varsayılan kullanılır.
+    #
+    # Portainer kullanıyorsan BOT_TOKEN ve ALLOWED_USER_ID
+    # Stack > Environment variables bölümünden tanımlanabilir.
+    # ==========================================================
+
     environment:
+
+      # ========================================================
+      # TELEGRAM
+      # ========================================================
+
+      # Telegram BotFather'dan alınan bot token.
       BOT_TOKEN: "${BOT_TOKEN}"
+
+      # Sadece bu Telegram User ID botu kullanabilir.
       ALLOWED_USER_ID: "${ALLOWED_USER_ID}"
+
+      # Saat dilimi
+      TZ: "${TZ:-Europe/Istanbul}"
+
+
+      # ========================================================
+      # SİSTEM İZLEME
+      # ========================================================
+
+      # Sistem kaç saniyede bir kontrol edilsin?
       CHECK_INTERVAL: "${CHECK_INTERVAL:-60}"
+
+      # Alarm eşikleri
       CPU_LIMIT: "${CPU_LIMIT:-90}"
       RAM_LIMIT: "${RAM_LIMIT:-90}"
       DISK_LIMIT: "${DISK_LIMIT:-90}"
+      SWAP_LIMIT: "${SWAP_LIMIT:-80}"
       TEMP_LIMIT: "${TEMP_LIMIT:-75}"
+
+      # Load alarmı.
+      # 0 = kapalı
+      LOAD_LIMIT: "${LOAD_LIMIT:-0}"
+
+
+      # ========================================================
+      # DIŞ IP KONTROLÜ
+      # ========================================================
+
+      # Markdown link değil, gerçek URL olmalıdır.
       PUBLIC_IP_CHECK_URL: "${PUBLIC_IP_CHECK_URL:-https://api.ipify.org}"
 
+      # Dış IP servisi timeout süresi
+      PUBLIC_IP_TIMEOUT: "${PUBLIC_IP_TIMEOUT:-5}"
+
+
+      # ========================================================
+      # BOT / HOST YOLLARI
+      # ========================================================
+
+      # Botun kendi container adı.
+      # Kendi kendisini yanlışlıkla stop/recreate etmesini engellemek için.
+      SELF_CONTAINER_NAME: "${SELF_CONTAINER_NAME:-pi-assistant-loruv}"
+
+      # Raspberry Pi root filesystem mount noktası
+      HOST_ROOT: "${HOST_ROOT:-/host/root}"
+
+      # Raspberry Pi sysfs mount noktası
+      HOST_SYS: "${HOST_SYS:-/host/sys}"
+
+      # Gerçek Raspberry Pi /proc mount noktası
+      HOST_PROC: "${HOST_PROC:-/host/proc}"
+
+      # Botun küçük kalıcı state dizini
+      STATE_DIR: "${STATE_DIR:-/app/data}"
+
+
+      # ========================================================
+      # LOG
+      # ========================================================
+      #
+      # SSD dostu olması için varsayılan WARNING.
+      #
+      # DEBUG -> çok fazla log
+      # INFO  -> normal detay
+      # WARNING -> önerilen
+      # ERROR -> sadece hatalar
+      # ========================================================
+
+      LOG_LEVEL: "${LOG_LEVEL:-WARNING}"
+
+
+      # ========================================================
+      # TELEGRAM MENÜ / SAYFALAMA
+      # ========================================================
+
+      # Docker container listesinde sayfa başına kayıt
+      DOCKER_PAGE_SIZE: "${DOCKER_PAGE_SIZE:-7}"
+
+      # Process listesinde sayfa başına kayıt
+      PROCESS_PAGE_SIZE: "${PROCESS_PAGE_SIZE:-7}"
+
+      # Dosya yöneticisinde sayfa başına kayıt
+      FILE_PAGE_SIZE: "${FILE_PAGE_SIZE:-7}"
+
+      # Büyük dosya taramalarında maksimum incelenecek kayıt
+      FILE_SCAN_LIMIT: "${FILE_SCAN_LIMIT:-500}"
+
+      # Telegram mesajında gösterilecek Docker log satırı
+      DOCKER_LOG_LINES: "${DOCKER_LOG_LINES:-100}"
+
+      # TXT log dosyasına alınabilecek maksimum satır
+      DOCKER_LOG_FILE_LINES: "${DOCKER_LOG_FILE_LINES:-1500}"
+
+      # systemd servis listesi sayfa boyutu
+      SYSTEMD_PAGE_SIZE: "${SYSTEMD_PAGE_SIZE:-7}"
+
+      # Kritik işlem onayı kaç saniye geçerli?
+      CONFIRM_TTL: "${CONFIRM_TTL:-45}"
+
+
+      # ========================================================
+      # DOCKER GÜNCELLEME / RECREATE
+      # ========================================================
+
+      # Telegram üzerinden güvenli container recreate özelliği
+      DOCKER_RECREATE_ENABLED: "${DOCKER_RECREATE_ENABLED:-true}"
+
+      # Güncellemeden sonra container health kontrolü için
+      # beklenecek maksimum süre
+      UPDATE_HEALTH_WAIT: "${UPDATE_HEALTH_WAIT:-20}"
+
+      # Güncelleme taraması ve toplu güncellemede atlanacak containerlar.
+      #
+      # Botun kendisini güncellememesi özellikle önerilir.
+      #
+      # Birden fazla:
+      # pi-assistant-loruv,container2,container3
+      UPDATE_IGNORE_CONTAINERS: "${UPDATE_IGNORE_CONTAINERS:-pi-assistant-loruv}"
+
+      # Toplu güncelleme sırasında bir container hata verirse
+      # işlemi durdur.
+      BULK_UPDATE_STOP_ON_ERROR: "${BULK_UPDATE_STOP_ON_ERROR:-true}"
+
+      # Tek seferde stats alınabilecek maksimum container
+      DOCKER_BULK_STATS_LIMIT: "${DOCKER_BULK_STATS_LIMIT:-40}"
+
+
+      # ========================================================
+      # DOSYA İNDİRME / DOSYA YÖNETİCİSİ
+      # ========================================================
+
+      # URL ile indirilen dosyalar
+      DOWNLOAD_DIR: "${DOWNLOAD_DIR:-/srv/downloads}"
+
+      # Telegram'dan Raspberry Pi'ye gönderilen dosyalar
+      UPLOAD_DIR: "${UPLOAD_DIR:-/srv/uploads}"
+
+      # URL üzerinden indirilebilecek maksimum dosya boyutu
+      MAX_DOWNLOAD_SIZE_GB: "${MAX_DOWNLOAD_SIZE_GB:-10}"
+
+      # İndirmeden sonra SSD'de bırakılacak minimum boş alan
+      DOWNLOAD_MIN_FREE_GB: "${DOWNLOAD_MIN_FREE_GB:-2}"
+
+      # URL download maksimum timeout
+      DOWNLOAD_TIMEOUT: "${DOWNLOAD_TIMEOUT:-600}"
+
+      # SSRF koruması.
+      # Varsayılan olarak URL downloader yalnızca HTTP/HTTPS
+      # standart portlarına çıkabilir.
+      DOWNLOAD_ALLOWED_PORTS: "${DOWNLOAD_ALLOWED_PORTS:-80,443}"
+
+      # Telegram'a bot tarafından gönderilebilecek dosya limiti.
+      # Güvenlik payı bırakılarak varsayılan 49 MB.
+      TELEGRAM_SEND_MAX_MB: "${TELEGRAM_SEND_MAX_MB:-49}"
+
+      # Telegram -> Raspberry Pi yükleme limiti.
+      TELEGRAM_UPLOAD_MAX_MB: "${TELEGRAM_UPLOAD_MAX_MB:-19}"
+
+
+      # ========================================================
+      # OLAY GEÇMİŞİ / SSD DOSTU ÇALIŞMA
+      # ========================================================
+
+      # Bot sürekli telemetry veritabanı tutmaz.
+      # Sadece önemli olayların son N tanesini saklar.
+      EVENT_HISTORY_MAX: "${EVENT_HISTORY_MAX:-200}"
+
+      # SSD yazma aktivitesi kaç saniyede bir örneklensin?
+      #
+      # Bu örnekler RAM'de tutulur.
+      # SSD'ye sürekli metric yazılmaz.
+      #
+      # 300 = 5 dakika
+      # 0   = kapalı
+      DISK_WRITE_SAMPLE_INTERVAL: "${DISK_WRITE_SAMPLE_INTERVAL:-300}"
+
+
+      # ========================================================
+      # HOST ARAÇLARI
+      # ========================================================
+      #
+      # SMART
+      # vcgencmd
+      # systemd
+      # journalctl
+      # speedtest
+      # apt bakım kontrolü
+      # gibi Raspberry Pi host işlemleri için kullanılır.
+      #
+      # README'deki SSH forced-command helper kurulmadan
+      # true yapılmamalıdır.
+      # ========================================================
+
+      HOST_TOOLS_ENABLED: "${HOST_TOOLS_ENABLED:-false}"
+
+      # Raspberry Pi reboot / shutdown ve Docker daemon restart
+      # gibi yönetim işlemlerini açar.
+      HOST_CONTROL_ENABLED: "${HOST_CONTROL_ENABLED:-false}"
+
+      # Container'dan Raspberry Pi host'una bağlanacak
+      # sınırlı yetkili SSH kullanıcısı.
+      HOST_SSH_TARGET: "${HOST_SSH_TARGET:-piassistant@127.0.0.1}"
+
+      # Host SSH private key
+      HOST_SSH_KEY: "${HOST_SSH_KEY:-/run/secrets/host_ssh_key}"
+
+      # SSH known_hosts
+      HOST_KNOWN_HOSTS: "${HOST_KNOWN_HOSTS:-/run/secrets/known_hosts}"
+
+      # Host komut timeout
+      HOST_SSH_TIMEOUT: "${HOST_SSH_TIMEOUT:-20}"
+
+
+      # ========================================================
+      # RASPBERRY PI POWER / THROTTLING MONITOR
+      # ========================================================
+
+      # Undervoltage, throttling ve frequency cap
+      # kaç saniyede bir kontrol edilsin?
+      PI_POWER_MONITOR_INTERVAL: "${PI_POWER_MONITOR_INTERVAL:-300}"
+
+
+      # ========================================================
+      # SYSTEMD MONITOR
+      # ========================================================
+
+      # Failed systemd servisleri kaç saniyede bir kontrol edilsin?
+      SYSTEMD_MONITOR_INTERVAL: "${SYSTEMD_MONITOR_INTERVAL:-300}"
+
+
+      # ========================================================
+      # SMART OTOMATİK MONITOR
+      # ========================================================
+      #
+      # 0 = kapalı
+      #
+      # Özellikle USB SSD'lerde sürekli SMART sorgusu bazı
+      # disklerin uyku davranışını etkileyebileceği için
+      # varsayılan kapalıdır.
+      #
+      # Örneğin saatte bir:
+      # SMART_MONITOR_INTERVAL=3600
+      # ========================================================
+
+      SMART_MONITOR_INTERVAL: "${SMART_MONITOR_INTERVAL:-0}"
+
+
+    # ==========================================================
+    # VOLUME / HOST MOUNTLARI
+    # ==========================================================
+
     volumes:
-      - ./data:/app/data
-      - /sys/class/thermal:/host/sys/class/thermal:ro
+
+      # ========================================================
+      # DOCKER SOCKET
+      # ========================================================
+      #
+      # Container listeleme
+      # start / stop / restart
+      # stats
+      # logs
+      # image pull
+      # update kontrolü
+      # recreate
+      # image/network/volume bilgileri
+      # için gereklidir.
+      #
+      # DİKKAT:
+      # Docker socket yüksek yetkidir.
+      # Bu nedenle bot ALLOWED_USER_ID ile sınırlandırılmıştır.
+      # ========================================================
+
       - /var/run/docker.sock:/var/run/docker.sock
 
-    security_opt:
-      - no-new-privileges:true
+
+      # ========================================================
+      # RASPBERRY PI ROOT FILESYSTEM
+      # ========================================================
+      #
+      # OS bilgileri, hostname, disk kullanımı,
+      # dosya sistemi ve diğer host bilgileri.
+      #
+      # :ro -> sadece okunabilir.
+      # ========================================================
+
+      - /:/host/root:ro
+
+
+      # ========================================================
+      # RASPBERRY PI SYSFS
+      # ========================================================
+      #
+      # CPU sıcaklığı
+      # thermal zone
+      # donanım bilgileri
+      # vb.
+      # ========================================================
+
+      - /sys:/host/sys:ro
+
+
+      # ========================================================
+      # GERÇEK HOST /PROC
+      # ========================================================
+      #
+      # V5 için kritik mount.
+      #
+      # Bu sayede bot yalnız kendi container processlerini değil,
+      # Raspberry Pi üzerindeki gerçek süreçleri görür.
+      #
+      # systemd
+      # dockerd
+      # tailscaled
+      # smbd
+      # diğer Docker processleri
+      # vb.
+      # ========================================================
+
+      - /proc:/host/proc:ro
+
+
+      # ========================================================
+      # BOT KALICI STATE
+      # ========================================================
+      #
+      # Burada yalnızca küçük state/event dosyaları tutulur.
+      # Sürekli telemetry tutulmadığı için SSD yazımı düşüktür.
+      # ========================================================
+
+      - /srv/docker/pi-assistant:/app/data
+
+
+      # ========================================================
+      # URL DOWNLOAD DİZİNİ
+      # ========================================================
+
+      - /srv/downloads:/srv/downloads
+
+
+      # ========================================================
+      # TELEGRAM UPLOAD DİZİNİ
+      # ========================================================
+
+      - /srv/uploads:/srv/uploads
+
+
+      # ========================================================
+      # HOST SSH SECRET DOSYALARI
+      # ========================================================
+      #
+      # HOST_TOOLS_ENABLED / HOST_CONTROL_ENABLED true ise
+      # kullanılır.
+      #
+      # İçeride örneğin:
+      #
+      # /run/secrets/host_ssh_key
+      # /run/secrets/known_hosts
+      #
+      # bulunur.
+      # ========================================================
+
+      - ./secrets:/run/secrets:ro
+
+
+    # ==========================================================
+    # CONTAINER ROOT FILESYSTEM
+    # ==========================================================
+    #
+    # Botun kendi container filesystem'ine gereksiz yazmasını
+    # engeller.
+    #
+    # Yazılabilen yerler sadece yukarıdaki RW volume'lar ve tmpfs.
+    # ==========================================================
+
+    read_only: true
+
+
+    # ==========================================================
+    # TMPFS
+    # ==========================================================
+    #
+    # Geçici dosyalar SSD yerine RAM'de tutulur.
+    #
+    # Böylece:
+    # - geçici Python dosyaları
+    # - rapor oluşturma
+    # - küçük geçici işlemler
+    #
+    # SSD'ye gereksiz yazılmaz.
+    # ==========================================================
+
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+
+
+    # ==========================================================
+    # SSD DOSTU DOCKER LOGGING
+    # ==========================================================
+    #
+    # json-file yerine local driver kullanılır.
+    #
+    # Maksimum yaklaşık:
+    #
+    # 2 MB x 2 dosya = ~4 MB
+    #
+    # log tutulabilir.
+    #
+    # LOG_LEVEL=WARNING olduğu için zaten bot oldukça az log üretir.
+    # ==========================================================
+
+    logging:
+      driver: local
+      options:
+        max-size: "2m"
+        max-file: "2"
