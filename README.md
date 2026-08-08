@@ -1,4 +1,4 @@
-# Pi Assistant Loruv V5 FINAL
+# Pi Assistant Loruv V5
 
 > Raspberry Pi, Linux host ve Docker ortamını Telegram üzerinden izlemek, yönetmek ve teşhis etmek için geliştirilmiş; güvenlik ve düşük SSD yazımı odaklı self-hosted yönetim botu.
 >
