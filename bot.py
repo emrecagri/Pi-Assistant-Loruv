@@ -90,7 +90,7 @@ SELF_CONTAINER_NAME = os.getenv("SELF_CONTAINER_NAME", "pi-assistant-loruv")
 # ------------------------------------------------------------
 # Host mount noktaları
 # ------------------------------------------------------------
-# docker-compose.yml içinde tipik olarak:
+# compose.yml içinde tipik olarak:
 #   - /:/host/root:ro
 #   - /sys:/host/sys:ro
 #   - pid: host
@@ -1236,7 +1236,7 @@ def collect_processes_sync() -> tuple[list[dict[str, Any]], Counter]:
     """
     Gerçek host /proc ağacındaki süreçleri örnekler.
 
-    V5'te docker-compose /proc'u /host/proc olarak bind eder ve psutil.PROCFS_PATH
+    V5'te compose /proc'u /host/proc olarak bind eder ve psutil.PROCFS_PATH
     bu dizine ayarlanır. Böylece yalnız bot container'ı değil Raspberry Pi'nin
     systemd, dockerd, tailscaled, samba ve diğer tüm host süreçleri görünür.
     """
@@ -1343,7 +1343,7 @@ def process_summary_sync() -> str:
             [
                 "",
                 "⚠️ <b>Host süreç görünürlüğü eksik.</b>",
-                "docker-compose.yml içinde <code>/proc:/host/proc:ro</code> ve "
+                "compose.yml içinde <code>/proc:/host/proc:ro</code> ve "
                 "<code>pid: host</code> bulunduğunu kontrol et.",
             ]
         )
