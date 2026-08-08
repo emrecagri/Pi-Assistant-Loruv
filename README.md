@@ -10,8 +10,9 @@
 
 ### Türkçe
 
+- [Ekran Görüntüleri](#screenshots)
 - [Proje Hakkında](#proje-hakkında)
-- [V5 Final Özellikleri](#v5-final-özellikleri)
+- [V5 Özellikleri](#v5-özellikleri)
 - [Telegram Komutları](#telegram-komutları)
 - [Ana Menü](#ana-menü)
 - [Gereksinimler](#gereksinimler)
@@ -29,8 +30,9 @@
 
 ### English
 
+- [Screenshots](#screenshots)
 - [About](#about)
-- [V5 Final Features](#v5-final-features)
+- [V5 Features](#v5-features)
 - [Telegram Commands](#telegram-commands)
 - [Requirements](#requirements)
 - [Portainer Repository Deployment](#portainer-repository-deployment-recommended)
@@ -41,12 +43,74 @@
 - [Security](#security-1)
 
 ---
+# Screenshots
+
+<p align="center">
+  <img src="screenshots/6032851226384338880.jpg" width="250">
+  <img src="screenshots/6032851226384338879.jpg" width="250">
+  <img src="screenshots/6032851226384338878.jpg" width="250">
+</p>
+
+<p align="center">
+  <img src="screenshots/6032851226384338877.jpg" width="250">
+  <img src="screenshots/6032851226384338876.jpg" width="250">
+  <img src="screenshots/6032851226384338875.jpg" width="250">
+</p>
+
+<p align="center">
+  <img src="screenshots/6032851226384338873.jpg" width="250">
+  <img src="screenshots/6032851226384338872.jpg" width="250">
+  <img src="screenshots/6032851226384338871.jpg" width="250">
+</p>
+
+<p align="center">
+  <img src="screenshots/6032851226384338870.jpg" width="250">
+  <img src="screenshots/6032851226384338869.jpg" width="250">
+  <img src="screenshots/6032851226384338868.jpg" width="250">
+</p>
+
+<p align="center">
+  <img src="screenshots/6032851226384338867.jpg" width="250">
+  <img src="screenshots/6032851226384338866.jpg" width="250">
+  <img src="screenshots/6032851226384338865.jpg" width="250">
+</p>
+
+<p align="center">
+  <img src="screenshots/6032851226384338864.jpg" width="250">
+  <img src="screenshots/6032851226384338863.jpg" width="250">
+  <img src="screenshots/6032851226384338862.jpg" width="250">
+</p>
+
+<p align="center">
+  <img src="screenshots/6032851226384338861.jpg" width="250">
+  <img src="screenshots/6032851226384338860.jpg" width="250">
+  <img src="screenshots/6032851226384338859.jpg" width="250">
+</p>
+
+<p align="center">
+  <img src="screenshots/6032851226384338858.jpg" width="250">
+  <img src="screenshots/6032851226384338857.jpg" width="250">
+  <img src="screenshots/6032851226384338856.jpg" width="250">
+</p>
+
+<p align="center">
+  <img src="screenshots/6032851226384338855.jpg" width="250">
+  <img src="screenshots/6032851226384338854.jpg" width="250">
+  <img src="screenshots/6032851226384338853.jpg" width="250">
+</p>
+
+<p align="center">
+  <img src="screenshots/6032851226384338852.jpg" width="250">
+  <img src="screenshots/6032851226384338851.jpg" width="250">
+  <img src="screenshots/6032851226384338850.jpg" width="250">
+</p>
+---
 
 # Türkçe
 
 ## Proje Hakkında
 
-**Pi Assistant Loruv V5 FINAL**, Raspberry Pi veya uyumlu bir Linux sunucuyu Telegram üzerinden yönetmek için hazırlanmış kapsamlı bir self-hosted yardımcı uygulamadır.
+**Pi Assistant Loruv V5**, Raspberry Pi veya uyumlu bir Linux sunucuyu Telegram üzerinden yönetmek için hazırlanmış kapsamlı bir self-hosted yardımcı uygulamadır.
 
 V5 yalnızca birkaç sistem metriği gösteren bir bot değildir. Raspberry Pi host işletim sistemi, Docker Engine, gerçek host süreçleri, ağ portları, SSD/SMART, systemd servisleri, internet bağlantısı, dosya indirme/yükleme ve kritik host işlemlerini tek Telegram arayüzünde birleştirir.
 
@@ -60,7 +124,7 @@ Bot varsayılan olarak yalnız `ALLOWED_USER_ID` ile tanımlanan Telegram hesab�
 
 ---
 
-# V5 Final Özellikleri
+# V5 Özellikleri
 
 ## 📊 Raspberry Pi / Sistem İzleme
 
@@ -709,7 +773,7 @@ V5'in asıl kullanım biçimi komut yazmaktan çok Telegram **inline button** me
 Örnek V5 ana menüsü:
 
 ```text
-🤖 Pi Assistant Loruv V5 FINAL
+🤖 Pi Assistant Loruv V5
 
 📊 Sistem        🐳 Docker
 ⚙️ Süreçler      🔌 Portlar
@@ -1628,7 +1692,7 @@ Ardından GitHub üzerinden Pull Request oluşturabilirsiniz.
 
 ## About
 
-**Pi Assistant Loruv V5 FINAL** is a self-hosted Telegram management assistant for Raspberry Pi and compatible Linux/Docker hosts.
+**Pi Assistant Loruv V5** is a self-hosted Telegram management assistant for Raspberry Pi and compatible Linux/Docker hosts.
 
 V5 combines host monitoring, Docker management, real host processes, network ports, SSD/SMART information, systemd services, internet diagnostics, file transfers and selected host-control actions in one Telegram interface.
 
@@ -1642,7 +1706,7 @@ Only the Telegram account configured through `ALLOWED_USER_ID` is authorized by 
 
 ---
 
-# V5 Final Features
+# V5 Features
 
 ## 📊 Host monitoring
 
