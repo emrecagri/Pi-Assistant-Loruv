@@ -1,55 +1,44 @@
-# Pi Assistant | Raspberry Pi Telegram Docker Yönetimi
+# Pi Assistant Loruv V5 FINAL
 
-> Raspberry Pi sistemlerini Telegram üzerinden izlemek ve Docker container’larını uzaktan yönetmek için geliştirilmiş, hafif ve genişletilebilir bir self-hosted yardımcı uygulama.
-
-> A lightweight and extensible self-hosted assistant for monitoring Raspberry Pi systems and remotely managing Docker containers through Telegram.
-
----
-
-<p align="center">
-  <img src="IMG_5116.PNG" alt="Screenshot 1" width="250">
-  <img src="IMG_5117.PNG" alt="Screenshot 2" width="250">
-</p>
+> Raspberry Pi, Linux host ve Docker ortamını Telegram üzerinden izlemek, yönetmek ve teşhis etmek için geliştirilmiş; güvenlik ve düşük SSD yazımı odaklı self-hosted yönetim botu.
+>
+> A security-conscious, SSD-friendly self-hosted Telegram assistant for monitoring, diagnosing and managing Raspberry Pi/Linux hosts and Docker environments.
 
 ---
 
-## İçindekiler / Table of Contents
+## İçindekiler
 
 ### Türkçe
 
-* [Proje Hakkında](#proje-hakkında)
-* [Özellikler](#özellikler)
-* [Telegram Komutları](#telegram-komutları)
-* [Gereksinimler](#gereksinimler)
-* [Proje Yapısı](#proje-yapısı)
-* [Telegram Botu Oluşturma](#telegram-botu-oluşturma)
-* [Git ile Kurulum](#git-ile-kurulum)
-* [Dosya Yükleyerek Kurulum](#dosya-yükleyerek-kurulum)
-* [Portainer Repository ile Kurulum ve Total Control](#portainer-repository-ile-kurulum-ve-total-control)
-* [Portainer Üzerinden Yönetim](#portainer-üzerinden-yönetim)
-* [Yapılandırma](#yapılandırma)
-* [Kod Güncelleme](#kod-güncelleme)
-* [Logları Görüntüleme](#logları-görüntüleme)
-* [Sorun Giderme](#sorun-giderme)
-* [Güvenlik](#güvenlik)
+- [Proje Hakkında](#proje-hakkında)
+- [V5 Final Özellikleri](#v5-final-özellikleri)
+- [Telegram Komutları](#telegram-komutları)
+- [Ana Menü](#ana-menü)
+- [Gereksinimler](#gereksinimler)
+- [Proje Yapısı](#proje-yapısı)
+- [Telegram Botu Oluşturma](#telegram-botu-oluşturma)
+- [Portainer Repository ile Kurulum](#portainer-repository-ile-kurulum-önerilen)
+- [Git ile Lokal Kurulum](#git-ile-lokal-kurulum)
+- [Host Araçlarını Etkinleştirme](#host-araçlarını-etkinleştirme)
+- [Yapılandırma](#yapılandırma)
+- [SSD Dostu Çalışma](#ssd-dostu-çalışma)
+- [Güncelleme](#güncelleme)
+- [Sorun Giderme](#sorun-giderme)
+- [Güvenlik](#güvenlik)
+- [Smoke Test](#smoke-test)
 
 ### English
 
-* [About the Project](#about-the-project)
-* [Features](#features)
-* [Telegram Commands](#telegram-commands)
-* [Requirements](#requirements)
-* [Project Structure](#project-structure)
-* [Creating a Telegram Bot](#creating-a-telegram-bot)
-* [Installation with Git](#installation-with-git)
-* [Manual File Installation](#manual-file-installation)
-* [Portainer Repository Installation and Total Control](#portainer-repository-installation-and-total-control)
-* [Managing with Portainer](#managing-with-portainer)
-* [Configuration](#configuration)
-* [Updating the Code](#updating-the-code)
-* [Viewing Logs](#viewing-logs)
-* [Troubleshooting](#troubleshooting)
-* [Security](#security-1)
+- [About](#about)
+- [V5 Final Features](#v5-final-features)
+- [Telegram Commands](#telegram-commands)
+- [Requirements](#requirements)
+- [Portainer Repository Deployment](#portainer-repository-deployment-recommended)
+- [Local Git Deployment](#local-git-deployment)
+- [Optional Host Tools](#optional-host-tools)
+- [Configuration](#configuration-1)
+- [SSD-Friendly Design](#ssd-friendly-design)
+- [Security](#security-1)
 
 ---
 
@@ -57,488 +46,845 @@
 
 ## Proje Hakkında
 
-Pi Assistant, Docker çalışan bir Raspberry Pi üzerinde sistem durumunu izlemek ve Docker container’larını Telegram üzerinden yönetmek amacıyla geliştirilmiştir.
+**Pi Assistant Loruv V5 FINAL**, Raspberry Pi veya uyumlu bir Linux sunucuyu Telegram üzerinden yönetmek için hazırlanmış kapsamlı bir self-hosted yardımcı uygulamadır.
 
-Uygulama aşağıdaki görevleri yerine getirebilir:
+V5 yalnızca birkaç sistem metriği gösteren bir bot değildir. Raspberry Pi host işletim sistemi, Docker Engine, gerçek host süreçleri, ağ portları, SSD/SMART, systemd servisleri, internet bağlantısı, dosya indirme/yükleme ve kritik host işlemlerini tek Telegram arayüzünde birleştirir.
 
-* Raspberry Pi veya bot container’ı başladığında Telegram bildirimi gönderir.
-* CPU, RAM, disk ve sıcaklık değerlerini izler.
-* Belirlenen eşikler aşıldığında uyarı gönderir.
-* İnternet bağlantısı kesildiğinde veya geri geldiğinde bildirim gönderir.
-* Genel IP adresi değiştiğinde haber verir.
-* Docker container’larını listeler.
-* Container başlatma, durdurma ve yeniden başlatma işlemlerini Telegram üzerinden gerçekleştirir.
-* Yalnızca izin verilen Telegram kullanıcı hesabından gelen komutları kabul eder.
+V5 tasarımında üç temel ilke vardır:
 
-Pi Assistant özellikle ev sunucuları, homelab sistemleri, Raspberry Pi cihazları ve küçük ölçekli self-hosted sistemler için tasarlanmıştır.
+1. **Güçlü yönetim:** Günlük sunucu yönetiminde SSH ihtiyacını azaltmak.
+2. **Dar yetki:** Telegram üzerinden sınırsız shell erişimi vermemek.
+3. **SSD dostu çalışma:** Sürekli telemetry ve gereksiz log yazımlarını mümkün olduğunca azaltmak.
+
+Bot varsayılan olarak yalnız `ALLOWED_USER_ID` ile tanımlanan Telegram hesabından gelen işlemleri kabul eder.
 
 ---
 
-## Özellikler
+# V5 Final Özellikleri
 
-### Sistem İzleme
+## 📊 Raspberry Pi / Sistem İzleme
 
-* CPU kullanım oranı
-* RAM kullanım oranı
-* Disk kullanım oranı
-* Raspberry Pi işlemci sıcaklığı
-* Ağ üzerinden gönderilen veri miktarı
-* Ağ üzerinden alınan veri miktarı
-* Sistem çalışma süresi
-* Yerel IP adresi
-* Genel IP adresi
+Telegram üzerinden aşağıdaki host bilgileri görüntülenebilir:
 
-### Otomatik Bildirimler
+- Raspberry Pi modeli
+- Hostname
+- İşletim sistemi
+- Kernel
+- Mimari
+- Sistem uptime
+- Son boot zamanı
+- CPU kullanımı
+- Fiziksel çekirdek / logical thread sayısı
+- CPU frekansı
+- Load average: 1 / 5 / 15 dakika
+- CPU sıcaklığı
+- RAM kullanımı
+- Available RAM
+- Cache / buffer / shared memory
+- Swap kullanımı
+- Disk kapasitesi
+- Kullanılan ve boş disk alanı
+- Disk read/write I/O
+- Yerel IP
+- Dış IP
+- Toplam ağ RX/TX
 
-Pi Assistant aşağıdaki durumlarda Telegram bildirimi gönderebilir:
-
-* Bot container’ı başladığında
-* Raspberry Pi yeniden açıldığında
-* CPU kullanımı belirlenen sınırı geçtiğinde
-* RAM kullanımı belirlenen sınırı geçtiğinde
-* Disk kullanımı belirlenen sınırı geçtiğinde
-* İşlemci sıcaklığı yükseldiğinde
-* İnternet bağlantısı kesildiğinde
-* İnternet bağlantısı tekrar geldiğinde
-* Genel IP adresi değiştiğinde
-* İzlenen değerler yeniden normale döndüğünde
-
-### Docker Yönetimi
-
-* Tüm container’ları listeleme
-* Container çalışma durumunu görüntüleme
-* Container başlatma
-* Container durdurma
-* Container yeniden başlatma
-* Container image bilgisini görüntüleme
+Sistem değerleri belirlenen eşikleri aştığında Telegram bildirimi gönderilebilir.
 
 ---
 
-## Telegram Komutları
+## 🩺 Sağlık Merkezi
 
-| Komut                        | Açıklama                                                            |
-| ---------------------------- | ------------------------------------------------------------------- |
-| `/start`                     | Botun karşılama mesajını ve temel komutları gösterir                |
-| `/yardim`                    | Kullanılabilir komutları listeler                                   |
-| `/durum`                     | CPU, RAM, disk, sıcaklık, ağ ve çalışma süresi bilgilerini gösterir |
-| `/docker`                    | Docker container’larını ve durumlarını listeler                     |
-| `/ip`                        | Yerel ve genel IP adresini gösterir                                 |
-| `/baslat <container>`        | Belirtilen container’ı başlatır                                     |
-| `/durdur <container>`        | Belirtilen container’ı durdurur                                     |
-| `/yenidenbaslat <container>` | Belirtilen container’ı yeniden başlatır                             |
+Tek bir ekranda genel sunucu sağlığı görüntülenebilir:
 
-### Komut örnekleri
+- CPU
+- RAM
+- Swap
+- Disk
+- Sıcaklık
+- Load
+- İnternet bağlantısı
+- Docker daemon
+- Host process görünürlüğü
+- Opsiyonel SMART / güç / systemd durumu
 
-```text
-/durum
-```
-
-```text
-/docker
-```
-
-```text
-/ip
-```
-
-```text
-/baslat nginx-proxy-manager
-```
-
-```text
-/durdur nginx-proxy-manager
-```
-
-```text
-/yenidenbaslat nginx-proxy-manager
-```
-
-Container adı, `/docker` komutunda gösterildiği şekilde yazılmalıdır.
+Amaç, sunucuda sorun olup olmadığını tek bakışta görebilmektir.
 
 ---
 
-## Gereksinimler
+## ⚙️ Gerçek Host Süreç Yöneticisi
 
-Kurulumdan önce aşağıdaki bileşenlerin hazır olması gerekir:
+V5'in önemli değişikliklerinden biri process görünürlüğüdür.
 
-* Raspberry Pi
-* 64 bit Raspberry Pi OS veya uyumlu bir Linux dağıtımı
-* Docker Engine
-* Docker Compose eklentisi
-* Portainer, isteğe bağlı
-* Telegram hesabı
-* BotFather üzerinden oluşturulmuş Telegram botu
-* İnternet bağlantısı
+Container içinde çalışan standart `psutil`, normalde yalnız container namespace'ini görebilir. V5 compose dosyası gerçek host `/proc` ağacını salt okunur bağlar:
 
-Docker sürümünü kontrol etmek için:
+```yaml
+- /proc:/host/proc:ro
+```
+
+Bot ise host process bilgileri için:
+
+```python
+psutil.PROCFS_PATH = "/host/proc"
+```
+
+kullanır.
+
+Bu sayede yalnız Pi Assistant process'i değil, Raspberry Pi üzerinde çalışan gerçek host süreçleri görülebilir.
+
+### Süreç özellikleri
+
+- Toplam PID sayısı
+- Toplam thread sayısı
+- Running / sleeping / zombie vb. durum özeti
+- CPU kullanımına göre sıralama
+- RAM kullanımına göre sıralama
+- Disk I/O kullanımına göre sıralama
+- PID ile arama
+- Process adı ile arama
+- Command line ile arama
+- Sayfalı process listesi
+
+### PID detay ekranı
+
+- PID
+- PPID
+- Process adı
+- Kullanıcı
+- Process status
+- CPU kullanımı
+- CPU core
+- Nice değeri
+- RAM yüzdesi
+- RSS
+- VMS
+- Thread sayısı
+- Disk read/write
+- Açık dosya sayısı
+- INET bağlantı sayısı
+- Başlangıç zamanı
+- Process uptime
+- Executable yolu
+- CWD
+- Command line
+
+Bot başlangıçta host process görünürlüğünü ayrıca kontrol eder.
+
+---
+
+# 🐳 Docker Yönetimi
+
+V5 kapsamlı bir Docker yönetim merkezi içerir.
+
+### Container yönetimi
+
+- Tüm container'ları listeleme
+- Running / stopped / paused durumları
+- Health durumu
+- Image bilgisi
+- Container ID
+- Restart count
+- Restart policy
+- Başlangıç zamanı
+- Container PID
+- OOM durumu
+- Portlar
+- Container IP adresleri
+- Mount'lar
+- Resource limitleri
+- Start
+- Stop
+- Restart
+- Pause
+- Resume
+
+Stop, restart ve diğer kritik işlemler ikinci onay ister.
+
+### Container kaynak kullanımı
+
+- CPU
+- RAM
+- Network RX
+- Network TX
+- Block read
+- Block write
+
+Tüm çalışan container'lar merkezi kaynak ekranında karşılaştırılabilir. Bu özellik özellikle SSD'ye fazla yazan container'ı tespit etmek için kullanışlıdır.
+
+### Container logları
+
+- Son logları Telegram içinde görüntüleme
+- Logları `.txt` dosyası olarak Telegram'a gönderme
+
+---
+
+## 🔍 Tek Tuşla Tüm Docker Güncelleme Kontrolü
+
+Docker menüsünde bütün container image'ları tek seferde kontrol edilebilir.
+
+Akış:
+
+1. Container'ın kullandığı repository/tag belirlenir.
+2. Registry'deki image pull edilir.
+3. Mevcut image ID ile yeni image ID karşılaştırılır.
+4. Her container için durum raporlanır.
+
+Olası durumlar:
+
+- ✅ Güncel
+- 🟠 Güncelleme var
+- ⚪ Kontrol edilemedi
+- ⏭ Yoksayıldı
+
+**Güncelleme kontrolü sırasında çalışan container değiştirilmez.**
+
+Güncelleme bulunan container'lar daha sonra ayrı bir toplu güncelleme işlemiyle uygulanabilir.
+
+### Toplu güncelleme güvenliği
+
+- Ayrı ikinci onay
+- Süreli ve tek kullanımlık confirmation token
+- Container'ları sırayla güncelleme
+- Health kontrolü
+- Hata durumunda rollback denemesi
+- İstenirse ilk hatada toplu işlemi durdurma
+- `pi-assistant-loruv` varsayılan olarak kendi kendini güncellemez
+- Riskli generic recreate senaryolarında işlem reddedilebilir
+
+Yoksayılacak container'lar:
+
+```env
+UPDATE_IGNORE_CONTAINERS=pi-assistant-loruv,my-local-app
+```
+
+> Güncelleme kontrolü yeni image katmanlarını gerçekten indirebilir. Bu nedenle registry kontrolü SSD ve internet trafiği oluşturabilir.
+
+---
+
+## 🔌 Docker + Host Port Merkezi
+
+V5 yalnız Docker port mapping bilgisini değil, gerçek host listening socket'lerini de gösterebilir.
+
+### Docker portları
+
+- Container adı
+- Host IP
+- Host port
+- Container port
+- TCP / UDP
+- Yayınlanmış portlar
+- `EXPOSE` edilmiş ancak yayınlanmamış portlar
+- `0.0.0.0` / `::` binding uyarısı
+
+Örnek:
+
+```text
+uptime-kuma
+0.0.0.0:3002 → 3001/tcp
+```
+
+### Host listening portları
+
+- Listening IP
+- Port
+- TCP / UDP
+- PID
+- Process adı
+
+Bu sayede Docker dışında çalışan host servisleri de görülebilir.
+
+> `0.0.0.0` veya `::` üzerinde dinleyen bir servis tüm interface'lere bind edilmiştir; bu tek başına internetten erişilebilir olduğu anlamına gelmez. Firewall, router ve NAT ayrıca değerlendirilmelidir.
+
+---
+
+## 💽 Docker Disk ve Temizlik Merkezi
+
+- Docker image disk kullanımı
+- Container writable layer kullanımı
+- Volume kullanımı
+- Build cache
+- Dangling image'lar
+- Kullanılmayan image'lar
+- Stopped container'lar
+- Kullanılmayan network'ler
+- Kullanılmayan volume'ler
+
+Temizlik işlemleri ayrı ayrı çalıştırılır. Veri kaybı riski daha yüksek olan volume cleanup ayrıca güçlü uyarı ve onay ister.
+
+---
+
+# 💿 SSD / SMART
+
+Host araçları etkinleştirildiğinde SMART bilgileri Telegram'dan görüntülenebilir.
+
+Desteklenen bilgiler diske ve USB/SATA/NVMe bridge'e göre değişebilir.
+
+V5 aşağıdaki değerleri okuyabilir:
+
+- Disk device
+- Model
+- Seri numarası
+- Firmware
+- Protokol
+- Kapasite
+- SMART overall health
+- Sıcaklık
+- Power-on hours
+- Power cycles
+- Reallocated sectors
+- Pending sectors
+- Offline uncorrectable
+- UDMA CRC errors
+- NVMe percentage used
+- Available spare
+- Media/data integrity errors
+- Unsafe shutdowns
+- NVMe toplam okuma/yazma tahmini
+
+### SMART işlemleri
+
+- SMART detay ekranı
+- `smartctl -x` tam raporunu `.txt` gönderme
+- SMART short self-test
+- SMART long self-test
+- Opsiyonel periyodik SMART alarmı
+
+Varsayılan olarak otomatik SMART sorgulaması kapalıdır:
+
+```env
+SMART_MONITOR_INTERVAL=0
+```
+
+Bu ayar özellikle bazı USB disklerin uyku davranışını gereksiz etkilememek için bilinçli olarak seçilmiştir.
+
+---
+
+# ⚡ Raspberry Pi Güç / Throttling
+
+Host helper ve `vcgencmd` mevcut olduğunda:
+
+- Undervoltage
+- Geçmiş undervoltage
+- Throttling
+- Geçmiş throttling
+- Frequency cap
+- Geçmiş frequency cap
+- Soft temperature limit
+- Core voltage
+- ARM clock
+- Firmware bilgisi
+
+izlenebilir.
+
+Geçmiş firmware bitleri sayesinde kısa süreli undervoltage veya throttling olayları da tespit edilebilir.
+
+---
+
+# 🌐 Ağ ve İnternet
+
+- Yerel IP
+- Dış IP
+- Interface listesi
+- IPv4 / IPv6
+- MTU
+- Link hızı
+- RX/TX
+- Packet count
+- Error/drop
+- Gateway testi
+- `1.1.1.1` bağlantı testi
+- `8.8.8.8` bağlantı testi
+- DNS çözümleme testi
+- Packet loss
+- Ortalama gecikme
+- Speedtest
+- İnternet gitti / geldi alarmı
+- Dış IP değişikliği alarmı
+
+---
+
+# 📥 URL ile Raspberry Pi'ye Dosya İndirme
+
+Telegram üzerinden doğrudan URL göndererek dosya sunucuya indirilebilir.
+
+Varsayılan download dizini:
+
+```text
+/srv/downloads
+```
+
+### İndirme özellikleri
+
+- HTTP / HTTPS
+- Metadata kontrolü
+- Dosya adı
+- Content type
+- Dosya boyutu
+- Maksimum indirme boyutu
+- Minimum boş SSD alanı kontrolü
+- Streaming download
+- `.part` geçici dosyası
+- Başarılı indirmede atomic rename
+- SHA-256
+- İlerleme yüzdesi
+- Download hızı
+- ETA
+- Aynı isim varsa `-2`, `-3` şeklinde yeni isim
+
+### SSRF koruması
+
+URL downloader, Telegram botunun iç ağ tarama aracı haline gelmemesi için kısıtlanmıştır.
+
+Varsayılan olarak:
+
+- Yalnız HTTP/HTTPS kabul edilir
+- URL içi username/password reddedilir
+- localhost reddedilir
+- `.local` hedefler reddedilir
+- loopback reddedilir
+- private/LAN IP'ler reddedilir
+- link-local reddedilir
+- CGNAT/non-global hedefler reddedilir
+- Redirect hedefleri tekrar doğrulanır
+- Varsayılan izinli portlar yalnız 80 ve 443'tür
+
+```env
+DOWNLOAD_ALLOWED_PORTS=80,443
+MAX_DOWNLOAD_SIZE_GB=10
+DOWNLOAD_MIN_FREE_GB=2
+```
+
+---
+
+# 📁 Telegram Dosya Yöneticisi
+
+Botun yazabildiği alanlar bilinçli olarak sınırlandırılmıştır:
+
+```text
+/srv/downloads
+/srv/uploads
+```
+
+Dosya yöneticisi ile:
+
+- Dosyaları listeleme
+- Sayfalama
+- Dosya boyutu
+- Son değiştirilme zamanı
+- SHA-256 hesaplama
+- Dosyayı Telegram'a gönderme
+- Dosya silme
+- Download alanını temizleme
+- Upload alanını temizleme
+- `/srv` altında en büyük dosyaları salt okunur görüntüleme
+
+mümkündür.
+
+`/etc`, `/boot`, `/usr` gibi kritik host alanları Telegram dosya yöneticisinin silme alanı değildir.
+
+---
+
+## 📎 Telegram → Raspberry Pi Dosya Yükleme
+
+Telegram botuna document gönderildiğinde izin verilen boyuttaysa:
+
+```text
+/srv/uploads
+```
+
+altına kaydedilir.
+
+Bot:
+
+- Dosya adını
+- Boyutunu
+- SHA-256 değerini
+
+raporlar ve dosyayı dosya yöneticisine ekler.
+
+Varsayılan bot limitleri:
+
+```env
+TELEGRAM_SEND_MAX_MB=49
+TELEGRAM_UPLOAD_MAX_MB=19
+```
+
+Bu değerler environment değişkenleriyle değiştirilebilir; gerçek kullanılabilir limit Telegram Bot API ve kullanılan altyapının sınırlarına bağlıdır.
+
+---
+
+# 🧩 systemd Yönetimi
+
+Host araçları etkinleştirildiğinde:
+
+- systemd servis listesi
+- Active state
+- Sub state
+- Main PID
+- Memory
+- CPU time
+- Restart count
+- Result
+- Unit file state
+- Failed servisler
+- Journal logları
+- Journal'ı `.txt` gönderme
+- Failed / recovered alarmı
+
+kullanılabilir.
+
+### Servis restart güvenliği
+
+Telegram'dan her servis restart edilemez.
+
+İzin verilen servisler host üzerindeki allowlist dosyasında tanımlanır:
+
+```text
+/etc/pi-assistant-systemd-allowlist
+```
+
+Örnek:
+
+```text
+docker.service
+tailscaled.service
+smbd.service
+nmbd.service
+```
+
+---
+
+# 🧰 Bakım ve Güvenlik
+
+## Bakım ekranı
+
+- Bekleyen apt paket sayısı
+- Reboot required
+- Failed systemd servisleri
+- Kernel
+- Boot zamanı
+
+## Güvenlik ekranı
+
+- Aktif login kullanıcıları
+- Son login kayıtları
+- Son 24 saatte başarısız SSH authentication sayısı
+- Host listening portlarıyla birlikte güvenlik değerlendirmesi
+
+---
+
+# 🕒 Olay Geçmişi
+
+V5 sürekli CPU/RAM telemetry verisini disk üzerindeki bir veritabanına yazmaz.
+
+Yalnız önemli olaylar küçük ve sınırlandırılmış bir geçmişte tutulur:
+
+- Bot başlangıcı
+- CPU/RAM/swap/disk/sıcaklık alarmı
+- İnternet gitti / geldi
+- Dış IP değişti
+- Docker status değişikliği
+- Docker health değişikliği
+- Container restart
+- Docker update
+- Dosya indirme
+- Dosya silme
+- SMART işlemleri
+- Host güç olayları
+
+Varsayılan:
+
+```env
+EVENT_HISTORY_MAX=200
+```
+
+---
+
+# 🔔 Otomatik Bildirimler
+
+V5 aşağıdaki durumlarda Telegram bildirimi gönderebilir:
+
+- Bot başladı
+- CPU yüksek
+- RAM yüksek
+- Swap yüksek
+- Disk doluluk yüksek
+- CPU sıcaklığı yüksek
+- Load yüksek
+- İnternet kesildi
+- İnternet geri geldi
+- Dış IP değişti
+- Container status değişti
+- Container health değişti
+- Container restart count arttı
+- Undervoltage oluştu
+- Throttling oluştu
+- Frequency cap oluştu
+- systemd servisi failed oldu
+- systemd servisi toparlandı
+- SMART sağlık sorunu tespit edildi
+- İzlenen metrik normale döndü
+
+Uyarılar Telegram menüsünden açılıp kapatılabilir.
+
+---
+
+# ⚡ Host Yönetimi
+
+`HOST_CONTROL_ENABLED=true` olduğunda güvenli host helper üzerinden:
+
+- Raspberry Pi reboot
+- Raspberry Pi shutdown
+- Docker daemon restart
+- Allowlist içindeki systemd servisini restart
+- SMART short test
+- SMART long test
+
+çalıştırılabilir.
+
+Bu özellik rastgele shell çalıştırmaz.
+
+Kritik işlemler Telegram'da ikinci onay ister.
+
+---
+
+# 🔐 Kritik İşlem Onayı
+
+Aşağıdaki işlemler tek kullanımlık ve süreli confirmation token kullanır:
+
+- Container stop
+- Container restart
+- Container pause
+- Container recreate/update
+- Toplu Docker update
+- Docker cleanup
+- Volume cleanup
+- Dosya silme
+- Dosya alanını temizleme
+- Olay geçmişini temizleme
+- systemd restart
+- SMART test
+- Raspberry Pi reboot
+- Raspberry Pi shutdown
+- Docker daemon restart
+
+Varsayılan geçerlilik:
+
+```env
+CONFIRM_TTL=45
+```
+
+Eski bir Telegram mesajındaki `Onayla` butonu daha sonra tekrar kullanılamaz.
+
+---
+
+# Telegram Komutları
+
+| Komut | Açıklama |
+| --- | --- |
+| `/start` | Botu başlatır ve ana menüyü gösterir |
+| `/menu` | Ana yönetim menüsü |
+| `/durum` | Raspberry Pi / host sistem raporu |
+| `/docker` | Docker yönetim merkezi |
+| `/surecler` | Gerçek host süreçleri |
+| `/ag` | Ağ ve interface raporu |
+| `/depolama` | Disk ve I/O raporu |
+| `/ip` | Yerel ve dış IP |
+| `/portlar` | Docker + host listening portları |
+| `/dosyalar` | Download/upload dosya yöneticisi |
+| `/olaylar` | Son önemli olaylar |
+| `/araclar` | Raspberry Pi güç / SMART / systemd araçları |
+| `/servisler` | systemd servisleri |
+| `/smart` | SSD / SMART sağlık ekranı |
+| `/speedtest` | İnternet hız testi |
+| `/rapor` | Tanılama ve log `.txt` raporları |
+| `/yardim` | Yardım / ana menü |
+
+V5'in asıl kullanım biçimi komut yazmaktan çok Telegram **inline button** menüleridir.
+
+---
+
+# Ana Menü
+
+Örnek V5 ana menüsü:
+
+```text
+🤖 Pi Assistant Loruv V5 FINAL
+
+📊 Sistem        🐳 Docker
+⚙️ Süreçler      🔌 Portlar
+🌐 Ağ            💽 Depolama
+📁 Dosyalar      📥 URL İndir
+🧩 Servisler     💿 SSD / SMART
+🧰 Host          🩺 Sağlık
+📄 Raporlar      🕒 Olaylar
+🔔 Uyarılar      ℹ️ Hakkında
+
+        ⚡ Host Yönetimi
+        🔄 Yenile
+```
+
+Bazı butonlar `HOST_TOOLS_ENABLED` veya `HOST_CONTROL_ENABLED` kapalıysa gizlenebilir veya pasif olabilir.
+
+---
+
+# Gereksinimler
+
+Temel kullanım:
+
+- Raspberry Pi veya uyumlu Linux host
+- 64-bit Linux önerilir
+- Docker Engine
+- Docker Compose plugin
+- İnternet bağlantısı
+- Telegram hesabı
+- BotFather ile oluşturulmuş Telegram botu
+- Portainer opsiyonel ancak önerilir
+
+Host araçları için opsiyonel:
+
+- OpenSSH server
+- `smartmontools`
+- Raspberry Pi üzerinde `vcgencmd`
+- `systemd` / `journalctl`
+- Ookla `speedtest` veya uyumlu `speedtest-cli`
+
+Docker kontrolü:
 
 ```bash
 docker --version
-```
-
-Docker Compose sürümünü kontrol etmek için:
-
-```bash
 docker compose version
-```
-
-Docker servisinin çalışıp çalışmadığını kontrol etmek için:
-
-```bash
 sudo systemctl status docker
 ```
 
 ---
 
-## Proje Yapısı
+# Proje Yapısı
+
+V5 repository yapısı:
 
 ```text
-pi-assistant-loruv/
+Pi-Assistant-Loruv/
 ├── bot.py
-├── compose.yaml
+├── compose.yml
 ├── Dockerfile
 ├── requirements.txt
+├── VERSION
+├── README.md
+├── LICENSE
 ├── .env.example
 ├── .gitignore
-├── README.md
-└── data/
+├── .dockerignore
+│
+├── host/
+│   ├── install-host-helper.sh
+│   ├── pi-assistant-host
+│   ├── pi-assistant-ssh-gateway
+│   ├── pi-assistant-systemd-allowlist.example
+│   └── piassistant-sudoers
+│
+├── scripts/
+│   └── smoke-test.sh
+│
+└── secrets/
+    └── .gitkeep
 ```
 
-### Dosyaların görevleri
-
-| Dosya              | Açıklama                                                                 |
-| ------------------ | ------------------------------------------------------------------------ |
-| `bot.py`           | Telegram botunun ve sistem izleme özelliklerinin ana Python kodu         |
-| `compose.yaml`     | Container’ın nasıl çalıştırılacağını belirleyen Docker Compose dosyası   |
-| `Dockerfile`       | Python uygulamasının Docker image olarak nasıl oluşturulacağını tanımlar |
-| `requirements.txt` | Gerekli Python kütüphanelerini içerir                                    |
-| `.env.example`     | Ortam değişkenleri için örnek yapılandırma dosyası                       |
-| `.env`             | Bot tokeni, kullanıcı ID’si ve eşik değerleri gibi özel ayarlar          |
-| `.gitignore`       | GitHub’a yüklenmemesi gereken dosyaları tanımlar                         |
-| `data/`            | Genel IP gibi kalıcı bilgilerin saklandığı klasör                        |
-
-> `.env` dosyası gizli bilgiler içerdiği için GitHub’a yüklenmemelidir.
+> Repository'nizde compose dosyasının adı farklıysa Portainer `Compose path` alanında gerçek dosya adını kullanın.
 
 ---
 
-## Telegram Botu Oluşturma
+# Telegram Botu Oluşturma
 
-### 1. BotFather’ı açın
+## 1. BotFather
 
-Telegram üzerinde aşağıdaki resmi botu açın:
+Telegram'da:
 
 ```text
 @BotFather
 ```
 
-### 2. Yeni bot oluşturun
+botunu açın.
 
-BotFather’a şu komutu gönderin:
+## 2. Bot oluşturun
 
 ```text
 /newbot
 ```
 
-Botunuz için bir isim ve kullanıcı adı belirleyin.
+BotFather size bir token verir.
 
-BotFather size aşağıdakine benzer bir token verecektir:
+Örnek format:
 
 ```text
 123456789:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-Bu değer daha sonra `.env` dosyasındaki `BOT_TOKEN` alanına yazılacaktır.
+Bu değer `BOT_TOKEN` olarak kullanılır.
 
-### 3. Bota mesaj gönderin
+## 3. Telegram User ID
 
-Oluşturduğunuz botu açın ve şu komutu gönderin:
+Kendi numeric Telegram kullanıcı ID'nizi öğrenin.
 
-```text
-/start
-```
-
-### 4. Telegram kullanıcı ID’nizi öğrenin
-
-Telegram kullanıcı ID’nizi öğrenmek için bir kullanıcı bilgi botundan yararlanabilir veya Telegram API üzerinden kendi kullanıcı ID’nizi belirleyebilirsiniz.
-
-Örnek kullanıcı ID:
+Örnek:
 
 ```text
 123456789
 ```
 
-Bu değer `.env` dosyasındaki `ALLOWED_USER_ID` alanına yazılacaktır.
+Bu değer `ALLOWED_USER_ID` olarak kullanılır.
+
+> Bot tokenını README, compose veya public GitHub commit'ine yazmayın.
 
 ---
 
-## Git ile Kurulum
+# Portainer Repository ile Kurulum — Önerilen
 
-Bu yöntem GitHub repository’sini doğrudan Raspberry Pi üzerine klonlar.
+V5 için önerilen yöntem Portainer'ın repository deploy özelliğidir.
 
-### 1. `/srv/docker` dizinine geçin
+Avantajları:
 
-```bash
-cd /srv/docker
-```
+- Portainer stack üzerinde **Total control**
+- Repository'den doğrudan build
+- GitHub güncellemesinden sonra Pull and redeploy
+- Token'ın repository dışında tutulması
+- Lokal proje dosyası yönetme ihtiyacının azalması
 
-Dizin mevcut değilse oluşturun:
+## 1. Eski stack varsa kaldırın
 
-```bash
-sudo mkdir -p /srv/docker
-```
-
-Kullanıcınıza yetki vermek için:
-
-```bash
-sudo chown -R $USER:$USER /srv/docker
-```
-
-Ardından:
-
-```bash
-cd /srv/docker
-```
-
-### 2. Repository’yi klonlayın
-
-```bash
-git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
-```
-
-Örnek:
-
-```bash
-git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
-```
-
-### 3. Proje klasörüne girin
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-```
-
-### 4. Ortam dosyasını oluşturun
-
-```bash
-cp .env.example .env
-```
-
-### 5. `.env` dosyasını düzenleyin
-
-```bash
-nano .env
-```
-
-Örnek yapılandırma:
-
-```env
-BOT_TOKEN=BOTFATHER_TOKENINIZ
-ALLOWED_USER_ID=TELEGRAM_KULLANICI_IDNIZ
-
-CHECK_INTERVAL=60
-CPU_LIMIT=90
-RAM_LIMIT=90
-DISK_LIMIT=90
-TEMP_LIMIT=75
-PUBLIC_IP_CHECK_URL=https://api.ipify.org
-```
-
-Nano editöründe kaydetmek için:
+Portainer:
 
 ```text
-Ctrl + O
-Enter
-Ctrl + X
+Stacks
+→ eski Pi Assistant stack
+→ Delete / Remove
 ```
 
-### 6. Container’ı oluşturun ve başlatın
+Eski container kalmışsa:
 
 ```bash
-sudo docker compose up -d --build
+docker rm -f pi-assistant-loruv
 ```
 
-### 7. Container durumunu kontrol edin
+Kalıcı bind-mount dizinlerini silmeyin.
+
+## 2. Host dizinlerini hazırlayın
+
+Raspberry Pi üzerinde:
 
 ```bash
-sudo docker compose ps
+sudo mkdir -p /srv/docker/pi-assistant
+sudo mkdir -p /srv/downloads
+sudo mkdir -p /srv/uploads
 ```
 
-### 8. Logları kontrol edin
+İsterseniz kullanıcı yetkisi:
 
 ```bash
-sudo docker compose logs -f
+sudo chown -R "$USER":"$USER" /srv/docker/pi-assistant /srv/downloads /srv/uploads
 ```
 
-Başarılı kurulumdan sonra Telegram’a aşağıdakine benzer bir mesaj gelmelidir:
-
-```text
-Pi Assistant çalıştı. Raspberry Pi veya bot container'ı yeniden başlatılmış olabilir.
-```
-
----
-
-## Dosya Yükleyerek Kurulum
-
-Bu yöntem Git kullanmadan, proje dosyalarını Raspberry Pi’ye elle yüklemek isteyen kullanıcılar içindir.
-
-Dosyalar SFTP, SCP, File Browser veya başka bir dosya aktarım yöntemiyle yüklenebilir.
-
-### Hedef klasör
-
-Proje şu dizinde tutulacaktır:
-
-```text
-/srv/docker/pi-assistant-loruv
-```
-
-### 1. Proje klasörünü oluşturun
-
-```bash
-sudo mkdir -p /srv/docker/pi-assistant-loruv
-```
-
-### 2. Klasör izinlerini düzenleyin
-
-```bash
-sudo chown -R $USER:$USER /srv/docker/pi-assistant-loruv
-```
-
-### 3. Proje dosyalarını yükleyin
-
-Aşağıdaki dosyaları `/srv/docker/pi-assistant-loruv` içerisine yükleyin:
-
-```text
-bot.py
-compose.yaml
-Dockerfile
-requirements.txt
-.env.example
-.gitignore
-README.md
-```
-
-Ayrıca `data` klasörünü oluşturun:
-
-```bash
-mkdir -p /srv/docker/pi-assistant-loruv/data
-```
-
-### 4. Dosyaların doğru yerde olduğunu kontrol edin
-
-```bash
-ls -la /srv/docker/pi-assistant-loruv
-```
-
-Beklenen görünüm:
-
-```text
-bot.py
-compose.yaml
-Dockerfile
-requirements.txt
-.env.example
-.gitignore
-README.md
-data
-```
-
-### 5. Proje klasörüne girin
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-```
-
-### 6. `.env` dosyasını oluşturun
-
-```bash
-cp .env.example .env
-```
-
-### 7. Ayarları girin
-
-```bash
-nano .env
-```
-
-Örnek:
-
-```env
-BOT_TOKEN=BOTFATHER_TOKENINIZ
-ALLOWED_USER_ID=TELEGRAM_KULLANICI_IDNIZ
-
-CHECK_INTERVAL=60
-CPU_LIMIT=90
-RAM_LIMIT=90
-DISK_LIMIT=90
-TEMP_LIMIT=75
-PUBLIC_IP_CHECK_URL=https://api.ipify.org
-```
-
-### 8. Container’ı oluşturun
-
-```bash
-sudo docker compose up -d --build
-```
-
-### 9. Çalışma durumunu kontrol edin
-
-```bash
-sudo docker compose ps
-```
-
-### 10. Logları görüntüleyin
-
-```bash
-sudo docker compose logs -f
-```
-
----
-
-
-## Portainer Repository ile Kurulum ve Total Control
-
-Pi Assistant terminal üzerinden `docker compose` ile oluşturulduğunda Portainer stack’i algılayabilir ancak yönetim yetkisini **Limited** olarak gösterebilir.
-
-Stack’i terminalden yönetmeye devam edebilir veya Portainer’ın **Repository** yöntemiyle yeniden oluşturarak **Total control** sağlayabilirsiniz.
-
-### Terminalden yönetim
-
-Önce proje dizinine geçin:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-```
-
-Container’ı yeniden başlatmak için:
-
-```bash
-sudo docker compose restart
-```
-
-`bot.py`, `Dockerfile` veya `requirements.txt` gibi dosyalarda değişiklik yaptıktan sonra image’ı yeniden oluşturmak için:
-
-```bash
-sudo docker compose up -d --build
-```
-
-Container’ı durdurup kaldırmak için:
-
-```bash
-sudo docker compose down
-```
-
-### Portainer’da Total control ile kurulum
-
-Daha önce terminal üzerinden oluşturulan stack çalışıyorsa önce kaldırın:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose down
-```
-
-> `docker compose down -v` kullanmayın. `-v` seçeneği volume verilerini silebilir.
-
-Ardından Portainer’da şu yolu izleyin:
+## 3. Portainer'da Repository seçin
 
 ```text
 Stacks
@@ -546,69 +892,80 @@ Stacks
 → Repository
 ```
 
-Aşağıdaki bilgileri girin:
+Ayarlar:
 
 | Alan | Değer |
 | --- | --- |
 | Name | `pi-assistant-loruv` |
+| Authentication | Public repo ise `OFF` |
 | Repository URL | `https://github.com/emrecagri/Pi-Assistant-Loruv` |
-| Repository reference | `main` |
-| Compose path | `compose.yaml` |
+| Skip TLS Verification | `OFF` |
+| Repository reference | `refs/heads/main` |
+| Compose path | `compose.yml` |
+| GitOps updates | İlk kurulumda `OFF` önerilir |
 
-Repository herkese açıksa kimlik doğrulama bilgisi girmeniz gerekmez.
+> Repository kökündeki compose dosyanız `compose.yaml` ise `Compose path` alanına `compose.yaml` yazın. Portainer'daki değer dosya adıyla birebir aynı olmalıdır.
 
-### Ortam değişkenlerini girin
+## 4. Environment Variables
 
-Portainer sayfasındaki şu bölümü bulun:
+Portainer sayfasında:
 
 ```text
 Environment variables
 ```
 
-**Advanced mode** seçeneğine basın ve aşağıdaki değerleri yapıştırın:
+alanına minimum olarak yalnız:
 
 ```env
-BOT_TOKEN=GERCEK_TELEGRAM_BOT_TOKENIN
-ALLOWED_USER_ID=GERCEK_TELEGRAM_KULLANICI_IDN
-CHECK_INTERVAL=60
-CPU_LIMIT=90
-RAM_LIMIT=90
-DISK_LIMIT=90
-TEMP_LIMIT=75
-PUBLIC_IP_CHECK_URL=https://api.ipify.org
+BOT_TOKEN=GERCEK_TELEGRAM_BOT_TOKEN
+ALLOWED_USER_ID=GERCEK_TELEGRAM_USER_ID
 ```
 
-Aşağıdaki iki alanı kendi bilgilerinizle değiştirin:
+girin.
 
-```text
-BOT_TOKEN
-ALLOWED_USER_ID
+Compose içinde bunlar:
+
+```yaml
+BOT_TOKEN: "${BOT_TOKEN}"
+ALLOWED_USER_ID: "${ALLOWED_USER_ID}"
 ```
 
-Gerçek bot tokeni ve kullanıcı ID’si GitHub repository’sine yazılmaz. Bu bilgiler yalnızca Portainer’daki stack ortam değişkenleri içinde saklanır.
+şeklinde alınır.
 
-### Stack’i oluşturun
+Diğer ayarlar compose içindeki `${VARIABLE:-default}` değerleriyle otomatik varsayılan kullanabilir.
 
-Ayarları tamamladıktan sonra:
+Örneğin:
+
+```yaml
+CHECK_INTERVAL: "${CHECK_INTERVAL:-60}"
+TEMP_LIMIT: "${TEMP_LIMIT:-75}"
+LOG_LEVEL: "${LOG_LEVEL:-WARNING}"
+```
+
+Daha sonra yalnız değiştirmek istediğiniz değerleri Portainer Environment Variables'a ekleyebilirsiniz.
+
+## 5. İlk deploy
+
+İlk kurulumda şu iki özellik kapalı kalabilir:
+
+```env
+HOST_TOOLS_ENABLED=false
+HOST_CONTROL_ENABLED=false
+```
+
+Bunları ayrıca tanımlamasanız da varsayılan `false` kullanılabilir.
+
+Son olarak:
 
 ```text
 Deploy the stack
 ```
 
-butonuna basın.
+seçin.
 
-Portainer repository’yi klonlar, image’ı oluşturur ve container’ı başlatır.
+## 6. Güncelleme
 
-Kurulum tamamlandıktan sonra stack Portainer’da **Total control** olarak görünür. Böylece aşağıdaki işlemler Portainer üzerinden yapılabilir:
-
-* Stack’i başlatma ve durdurma
-* Container’ı yeniden başlatma
-* Logları görüntüleme
-* Ortam değişkenlerini güncelleme
-* Repository’deki yeni kodu çekip yeniden dağıtma
-* Stack’i yeniden oluşturma
-
-GitHub repository’sinde kod güncellendiğinde şu yolu kullanabilirsiniz:
+GitHub'a yeni kod push edildikten sonra:
 
 ```text
 Stacks
@@ -616,919 +973,951 @@ Stacks
 → Pull and redeploy
 ```
 
-### Terminal kurulumu hakkında not
+kullanılabilir.
 
-Projeyi Portainer yerine terminalden çalıştırırsanız proje klasöründeki `.env` dosyası otomatik olarak okunur:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
-```
-
-> Aynı container’ı terminal ve Portainer üzerinden aynı anda oluşturmaya çalışmayın. Yönetim yöntemi olarak bunlardan birini tercih edin.
+> Aynı `container_name` ile hem terminal hem Portainer üzerinden aynı anda ikinci stack oluşturmaya çalışmayın.
 
 ---
 
-## Portainer Üzerinden Yönetim
+# Git ile Lokal Kurulum
 
-İlk image oluşturma işlemi terminal üzerinden yapılabilir:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
-```
-
-Kurulum tamamlandıktan sonra container Portainer üzerinde görünür.
-
-Portainer içinde şu yolu takip edin:
-
-```text
-Containers
-→ pi-assistant-loruv
-```
-
-Buradan aşağıdaki işlemleri yapabilirsiniz:
-
-* Container başlatma
-* Container durdurma
-* Container yeniden başlatma
-* Logları görüntüleme
-* Container istatistiklerini görüntüleme
-* Container detaylarını inceleme
-
-### Portainer üzerinden log görüntüleme
-
-```text
-Containers
-→ pi-assistant-loruv
-→ Logs
-```
-
-### Portainer üzerinden yeniden başlatma
-
-```text
-Containers
-→ pi-assistant-loruv
-→ Restart
-```
-
-### Önemli bilgi
-
-Sadece Portainer üzerinde `Restart` seçeneğini kullanmak, mevcut image’ı yeniden başlatır.
-
-`bot.py`, `Dockerfile` veya `requirements.txt` dosyası değiştirilmişse image’ın yeniden oluşturulması gerekir.
-
-Bu durumda şu komut kullanılmalıdır:
+Portainer yerine Raspberry Pi üzerinde lokal repository kullanmak isterseniz:
 
 ```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
+cd /srv/docker
+git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
+cd Pi-Assistant-Loruv
 ```
 
----
+Kalıcı dizinleri oluşturun:
 
-## Yapılandırma
+```bash
+sudo mkdir -p /srv/docker/pi-assistant /srv/downloads /srv/uploads
+sudo chown -R "$USER":"$USER" /srv/docker/pi-assistant /srv/downloads /srv/uploads
+```
 
-Uygulama ayarları `.env` dosyası üzerinden yönetilir.
+`.env`:
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+Minimum:
 
 ```env
-BOT_TOKEN=BOTFATHER_TOKENINIZ
-ALLOWED_USER_ID=TELEGRAM_KULLANICI_IDNIZ
-
-CHECK_INTERVAL=60
-CPU_LIMIT=90
-RAM_LIMIT=90
-DISK_LIMIT=90
-TEMP_LIMIT=75
-PUBLIC_IP_CHECK_URL=https://api.ipify.org
+BOT_TOKEN=GERCEK_TELEGRAM_BOT_TOKEN
+ALLOWED_USER_ID=GERCEK_TELEGRAM_USER_ID
 ```
 
-### Ortam değişkenleri
+Build ve başlatma:
 
-| Değişken              | Açıklama                                                | Örnek                   |
-| --------------------- | ------------------------------------------------------- | ----------------------- |
-| `BOT_TOKEN`           | BotFather tarafından verilen Telegram bot tokeni        | `123456:AA...`          |
-| `ALLOWED_USER_ID`     | Botu kullanmasına izin verilen Telegram kullanıcı ID’si | `123456789`             |
-| `CHECK_INTERVAL`      | Kontroller arasındaki süre, saniye                      | `60`                    |
-| `CPU_LIMIT`           | CPU kullanım uyarı sınırı                               | `90`                    |
-| `RAM_LIMIT`           | RAM kullanım uyarı sınırı                               | `90`                    |
-| `DISK_LIMIT`          | Disk kullanım uyarı sınırı                              | `90`                    |
-| `TEMP_LIMIT`          | Sıcaklık uyarı sınırı, Celsius                          | `75`                    |
-| `PUBLIC_IP_CHECK_URL` | Genel IP kontrol servisi                                | `https://api.ipify.org` |
+```bash
+docker compose -f compose.yml up -d --build
+```
 
-### Örnek daha hassas yapılandırma
+Durum:
+
+```bash
+docker compose -f compose.yml ps
+```
+
+Log:
+
+```bash
+docker logs --tail 100 pi-assistant-loruv
+```
+
+---
+
+# Host Araçlarını Etkinleştirme
+
+Temel Docker/sistem özellikleri host helper olmadan kullanılabilir.
+
+Aşağıdakiler için host helper gerekir:
+
+- SMART
+- Raspberry Pi undervoltage/throttling
+- systemd
+- journal
+- speedtest
+- bazı bakım/güvenlik raporları
+- reboot
+- shutdown
+- Docker daemon restart
+
+## 1. Host helper kurulumu
+
+Repository Raspberry Pi üzerinde mevcutsa:
+
+```bash
+cd /srv/docker/Pi-Assistant-Loruv
+sudo ./host/install-host-helper.sh
+```
+
+`smartmontools`:
+
+```bash
+sudo apt update
+sudo apt install -y smartmontools
+```
+
+SMART cihazlarını kontrol edin:
+
+```bash
+sudo smartctl --scan-open
+```
+
+Raspberry Pi power kontrolü:
+
+```bash
+vcgencmd get_throttled
+```
+
+---
+
+## 2. Güvenli SSH forced-command anahtarı
+
+Host araçları sınırsız shell kullanmaz. Container yalnız özel SSH anahtarı ve forced-command gateway üzerinden allowlist komutlarını çalıştırır.
+
+Lokal repository deployment kullanıyorsanız proje içinde:
+
+```bash
+mkdir -p secrets
+ssh-keygen -t ed25519 -f secrets/host_ssh_key -N ""
+chmod 600 secrets/host_ssh_key
+```
+
+Public key:
+
+```bash
+cat secrets/host_ssh_key.pub
+```
+
+Host üzerindeki `piassistant` kullanıcısının:
+
+```text
+/home/piassistant/.ssh/authorized_keys
+```
+
+satırına şu formatta eklenir:
+
+```text
+restrict,command="/usr/local/sbin/pi-assistant-ssh-gateway" ssh-ed25519 AAAA...PUBLIC_KEY...
+```
+
+İzinler:
+
+```bash
+sudo chown -R piassistant:piassistant /home/piassistant/.ssh
+sudo chmod 700 /home/piassistant/.ssh
+sudo chmod 600 /home/piassistant/.ssh/authorized_keys
+```
+
+Known hosts:
+
+```bash
+ssh-keyscan -H 127.0.0.1 > secrets/known_hosts
+chmod 600 secrets/known_hosts
+```
+
+Test:
+
+```bash
+ssh -i secrets/host_ssh_key \
+  -o StrictHostKeyChecking=yes \
+  -o UserKnownHostsFile=secrets/known_hosts \
+  piassistant@127.0.0.1 throttled
+```
+
+Keyfi shell komutu reddedilmelidir:
+
+```bash
+ssh -i secrets/host_ssh_key \
+  -o StrictHostKeyChecking=yes \
+  -o UserKnownHostsFile=secrets/known_hosts \
+  piassistant@127.0.0.1 "rm -rf /"
+```
+
+Beklenen:
+
+```text
+Denied
+```
+
+### Portainer Repository kullanıcıları için secrets notu
+
+Portainer repository deployment kullanıldığında private SSH anahtarını public Git repository'ye koymayın.
+
+En temiz yöntem host üzerinde kalıcı bir secret dizini kullanmaktır:
+
+```text
+/srv/docker/pi-assistant/secrets
+```
+
+ve compose mount'unu örneğin:
+
+```yaml
+- /srv/docker/pi-assistant/secrets:/run/secrets:ro
+```
+
+şeklinde kullanmaktır.
+
+Bu sayede Portainer repository'yi yeniden klonladığında private key kaybolmaz ve GitHub'a yüklenmez.
+
+---
+
+## 3. systemd restart allowlist
+
+Host helper kurulumu:
+
+```text
+/etc/pi-assistant-systemd-allowlist
+```
+
+dosyasını kullanır.
+
+Örnek:
+
+```text
+docker.service
+tailscaled.service
+smbd.service
+nmbd.service
+```
+
+Düzenleme:
+
+```bash
+sudo nano /etc/pi-assistant-systemd-allowlist
+```
+
+---
+
+## 4. Host araçlarını açın
+
+Portainer Environment Variables veya lokal `.env` içine:
 
 ```env
-CHECK_INTERVAL=30
-CPU_LIMIT=80
-RAM_LIMIT=85
-DISK_LIMIT=85
-TEMP_LIMIT=70
+HOST_TOOLS_ENABLED=true
+HOST_CONTROL_ENABLED=true
 ```
 
-Bu ayarlarda sistem her 30 saniyede bir kontrol edilir.
+`HOST_TOOLS_ENABLED=true`:
+
+- SMART
+- vcgencmd
+- speedtest
+- systemd/journal
+- bakım
+- güvenlik
+- host ağ tanılama
+
+özelliklerini açar.
+
+`HOST_CONTROL_ENABLED=true` ayrıca:
+
+- reboot
+- shutdown
+- Docker daemon restart
+- systemd allowlist restart
+- SMART test
+
+özelliklerini açar.
 
 ---
 
-## Kod Güncelleme
+# Yapılandırma
 
-### `bot.py` değiştirildiğinde
+Compose V5 ayarları environment variables üzerinden yönetilir.
 
-Python kodunda değişiklik yaptıktan sonra container’ın yalnızca yeniden başlatılması yeterli değildir.
+## Zorunlu
 
-Çünkü `bot.py` dosyası Docker image oluşturulurken image içine kopyalanır.
+| Değişken | Açıklama |
+| --- | --- |
+| `BOT_TOKEN` | BotFather tarafından verilen Telegram bot tokenı |
+| `ALLOWED_USER_ID` | Botu kullanabilecek numeric Telegram user ID |
 
-Bu nedenle image yeniden oluşturulmalıdır:
+## Sistem / alarm
 
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
+| Değişken | Varsayılan | Açıklama |
+| --- | ---: | --- |
+| `CHECK_INTERVAL` | `60` | Genel monitor aralığı, saniye |
+| `CPU_LIMIT` | `90` | CPU alarm yüzdesi |
+| `RAM_LIMIT` | `90` | RAM alarm yüzdesi |
+| `DISK_LIMIT` | `90` | Disk alarm yüzdesi |
+| `SWAP_LIMIT` | `80` | Swap alarm yüzdesi |
+| `TEMP_LIMIT` | `75` | Sıcaklık alarmı, °C |
+| `LOAD_LIMIT` | `0` | Load alarmı, `0` = kapalı |
+| `PUBLIC_IP_CHECK_URL` | `https://api.ipify.org` | Dış IP servisi |
+| `PUBLIC_IP_TIMEOUT` | `5` | Dış IP timeout |
+
+## Docker
+
+| Değişken | Varsayılan | Açıklama |
+| --- | --- | --- |
+| `DOCKER_RECREATE_ENABLED` | `true` | Güvenli generic recreate özelliği |
+| `UPDATE_HEALTH_WAIT` | `20` | Update sonrası health bekleme |
+| `UPDATE_IGNORE_CONTAINERS` | `pi-assistant-loruv` | Update kontrolünde atlanacak container'lar |
+| `BULK_UPDATE_STOP_ON_ERROR` | `true` | Toplu update ilk hatada dursun |
+| `DOCKER_BULK_STATS_LIMIT` | `40` | Merkezi stats üst sınırı |
+| `DOCKER_LOG_LINES` | `100` | Telegram içi log satırı |
+| `DOCKER_LOG_FILE_LINES` | `1500` | `.txt` log üst sınırı |
+
+## Dosya yöneticisi
+
+| Değişken | Varsayılan | Açıklama |
+| --- | --- | --- |
+| `DOWNLOAD_DIR` | `/srv/downloads` | URL download dizini |
+| `UPLOAD_DIR` | `/srv/uploads` | Telegram upload dizini |
+| `MAX_DOWNLOAD_SIZE_GB` | `10` | URL download maksimum boyutu |
+| `DOWNLOAD_MIN_FREE_GB` | `2` | SSD'de minimum boş kalacak alan |
+| `DOWNLOAD_TIMEOUT` | `600` | Download timeout |
+| `DOWNLOAD_ALLOWED_PORTS` | `80,443` | İzinli URL portları |
+| `TELEGRAM_SEND_MAX_MB` | `49` | Bot → Telegram dosya varsayılan sınırı |
+| `TELEGRAM_UPLOAD_MAX_MB` | `19` | Telegram → bot dosya varsayılan sınırı |
+
+## SSD / olay
+
+| Değişken | Varsayılan | Açıklama |
+| --- | ---: | --- |
+| `LOG_LEVEL` | `WARNING` | Python log seviyesi |
+| `EVENT_HISTORY_MAX` | `200` | Tutulacak maksimum önemli olay |
+| `DISK_WRITE_SAMPLE_INTERVAL` | `300` | RAM'deki disk-write trend örnekleme süresi |
+| `SMART_MONITOR_INTERVAL` | `0` | Otomatik SMART; `0` = kapalı |
+| `PI_POWER_MONITOR_INTERVAL` | `300` | Pi power monitor aralığı |
+| `SYSTEMD_MONITOR_INTERVAL` | `300` | systemd monitor aralığı |
+| `CONFIRM_TTL` | `45` | Kritik onay geçerlilik süresi |
+
+---
+
+# SSD Dostu Çalışma
+
+V5 Raspberry Pi + SSD kullanımına göre tasarlanmıştır.
+
+## 1. Düşük Python log seviyesi
+
+```env
+LOG_LEVEL=WARNING
 ```
 
-Bu komut:
+Varsayılan olarak debug/info seviyesinde sürekli disk logu üretilmez.
 
-1. Docker image’ı yeniden oluşturur.
-2. Yeni Python kodunu image içine kopyalar.
-3. Eski container’ı yenisiyle değiştirir.
-4. Container’ı arka planda yeniden başlatır.
+## 2. Docker `local` logging driver
 
-### `requirements.txt` değiştirildiğinde
+Compose örneği:
 
-Yeni bir Python kütüphanesi eklendiğinde:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
+```yaml
+logging:
+  driver: local
+  options:
+    max-size: "2m"
+    max-file: "2"
 ```
 
-komutu tekrar çalıştırılmalıdır.
+Böylece bot loglarının kontrolsüz büyümesi engellenir.
 
-Örneğin `requirements.txt` içerisine yeni bir paket eklendiyse image yeniden oluşturulur ve paket yüklenir.
+## 3. Read-only root filesystem
 
-### `Dockerfile` değiştirildiğinde
-
-Dockerfile üzerinde değişiklik yapıldıysa:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
+```yaml
+read_only: true
 ```
 
-komutu kullanılmalıdır.
+Bot yalnız açıkça izin verilen bind mount alanlarına yazar.
 
-### `compose.yaml` değiştirildiğinde
+## 4. `/tmp` RAM üzerinde
 
-Compose dosyası değiştirildikten sonra:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d
+```yaml
+tmpfs:
+  - /tmp:size=32m,mode=1777
 ```
 
-çalıştırılabilir.
+Geçici işlemler SSD yerine RAM kullanır.
 
-Ancak değişiklik image yapısını da etkiliyorsa güvenli yöntem şudur:
+## 5. Sürekli telemetry DB yok
 
-```bash
-sudo docker compose up -d --build
+CPU/RAM gibi değerler sürekli SQLite/Influx/JSON geçmişine yazılmaz.
+
+Yalnız önemli olaylar sınırlı geçmişte tutulur.
+
+## 6. Disk write trendi RAM'de
+
+Disk write trendi RAM içindeki sınırlı örneklerde tutulur; her örnek SSD'ye kaydedilmez.
+
+---
+
+# Güncelleme
+
+## Portainer Repository
+
+Önerilen yöntem:
+
+```text
+Stacks
+→ pi-assistant-loruv
+→ Pull and redeploy
 ```
 
-### `.env` değiştirildiğinde
+Bu işlem repository'nin yeni sürümünü çekip image'ı tekrar oluşturur.
 
-`.env` dosyası değiştirildikten sonra container’ın yeniden oluşturulması gerekir:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --force-recreate
-```
-
-Alternatif olarak:
+## Lokal Git
 
 ```bash
-sudo docker compose down
-sudo docker compose up -d
-```
-
-### GitHub’dan yeni kod çekildiğinde
-
-Repository Git ile kurulmuşsa:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
+cd /srv/docker/Pi-Assistant-Loruv
 git pull
+docker compose -f compose.yml up -d --build
 ```
 
-Ardından image’ı yeniden oluşturun:
+Cache sorunu varsa:
 
 ```bash
-sudo docker compose up -d --build
-```
-
-Tek seferde:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-git pull
-sudo docker compose up -d --build
-```
-
-### Cache kullanmadan tamamen yeniden oluşturma
-
-Docker eski katmanları kullanıyor veya değişiklikler uygulanmıyorsa:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose build --no-cache
-sudo docker compose up -d
-```
-
-### Güncelleme sonrası kontrol
-
-```bash
-sudo docker compose ps
-```
-
-```bash
-sudo docker compose logs -f
+docker compose -f compose.yml build --no-cache
+docker compose -f compose.yml up -d
 ```
 
 ---
 
-## Logları Görüntüleme
+# Logları Görüntüleme
 
-Canlı logları görüntülemek için:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose logs -f
-```
-
-Son 100 satırı görmek için:
+Son 100 satır:
 
 ```bash
-sudo docker compose logs --tail=100
+docker logs --tail 100 pi-assistant-loruv
 ```
 
-Sadece Pi Assistant container loglarını görüntülemek için:
+Canlı log:
 
 ```bash
-sudo docker logs -f pi-assistant-loruv
+docker logs -f --tail 100 pi-assistant-loruv
 ```
 
-Log takibinden çıkmak için:
+Canlı log takibinden çıkmak:
 
 ```text
 Ctrl + C
 ```
 
-Bu işlem container’ı durdurmaz.
+Bu işlem container'ı durdurmaz.
 
 ---
 
-## Sık Kullanılan Docker Komutları
+# Sorun Giderme
 
-### Container’ı başlatma
+## Portainer: container name already in use
 
-```bash
-sudo docker compose up -d
+Hata:
+
+```text
+Conflict. The container name "/pi-assistant-loruv" is already in use
 ```
 
-### Image’ı yeniden oluşturma
+Eski stack/container hâlâ vardır.
+
+Önce Portainer'dan eski stack'i kaldırın.
+
+Gerekirse:
 
 ```bash
-sudo docker compose up -d --build
+docker rm -f pi-assistant-loruv
 ```
 
-### Container’ı durdurma ve kaldırma
-
-```bash
-sudo docker compose down
-```
-
-### Container’ı yeniden başlatma
-
-```bash
-sudo docker compose restart
-```
-
-### Çalışma durumunu görüntüleme
-
-```bash
-sudo docker compose ps
-```
-
-### Logları görüntüleme
-
-```bash
-sudo docker compose logs -f
-```
-
-### Tamamen yeniden oluşturma
-
-```bash
-sudo docker compose down
-sudo docker compose build --no-cache
-sudo docker compose up -d
-```
+Sonra yeniden deploy edin.
 
 ---
 
-## Sorun Giderme
+## Telegram mesajı gelmiyor
 
-### Telegram mesajı gelmiyor
+Kontrol edin:
 
-Aşağıdakileri kontrol edin:
-
-1. Bot tokeni doğru mu?
+1. `BOT_TOKEN` doğru mu?
 2. `ALLOWED_USER_ID` doğru mu?
-3. Telegram’da bota `/start` gönderdiniz mi?
+3. Bota `/start` gönderdiniz mi?
 4. Raspberry Pi internete bağlı mı?
-5. Container çalışıyor mu?
+5. Container running mi?
 
 ```bash
-sudo docker compose ps
+docker ps --filter name=pi-assistant-loruv
 ```
 
-Logları kontrol edin:
+Log:
 
 ```bash
-sudo docker compose logs -f
+docker logs --tail 100 pi-assistant-loruv
 ```
 
-### Container sürekli yeniden başlıyor
+---
 
-Logları görüntüleyin:
+## Docker listesi alınamıyor
 
-```bash
-sudo docker logs --tail=100 pi-assistant-loruv
-```
-
-`.env` dosyasını kontrol edin:
-
-```bash
-cat .env
-```
-
-Tokeni herkese açık ortamlarda paylaşmayın.
-
-### Docker container listesi alınamıyor
-
-Compose dosyasında aşağıdaki bağlantının bulunduğunu kontrol edin:
+Docker socket mount'unu kontrol edin:
 
 ```yaml
-volumes:
-  - /var/run/docker.sock:/var/run/docker.sock
+- /var/run/docker.sock:/var/run/docker.sock
 ```
 
-Docker socket dosyasını kontrol edin:
+Host:
 
 ```bash
 ls -l /var/run/docker.sock
 ```
 
-### Sıcaklık okunamıyor
+---
 
-Compose dosyasında aşağıdaki volume bağlantısının bulunduğunu kontrol edin:
+## Süreçler yalnız container'ı gösteriyor
+
+Compose'ta aşağıdakilerin bulunduğunu kontrol edin:
 
 ```yaml
-volumes:
-  - /sys/class/thermal:/host/sys/class/thermal:ro
+pid: host
 ```
 
-Host üzerinde sıcaklık dosyasını kontrol edin:
+ve:
+
+```yaml
+- /proc:/host/proc:ro
+```
+
+Ayrıca:
+
+```env
+HOST_PROC=/host/proc
+```
+
+olmalıdır.
+
+---
+
+## Sıcaklık okunamıyor
+
+Host:
 
 ```bash
 cat /sys/class/thermal/thermal_zone0/temp
 ```
 
-Örneğin şu değer:
+Compose:
 
-```text
-47500
-```
-
-şu sıcaklığı ifade eder:
-
-```text
-47.5 °C
-```
-
-### Kod değişikliği uygulanmıyor
-
-Sadece container yeniden başlatılmış olabilir.
-
-Image’ı yeniden oluşturun:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
-```
-
-Sorun devam ederse cache kullanmadan oluşturun:
-
-```bash
-sudo docker compose build --no-cache
-sudo docker compose up -d
+```yaml
+- /sys:/host/sys:ro
 ```
 
 ---
 
-## Güvenlik
+## SMART cihazı görünmüyor
 
-Pi Assistant, Docker socket bağlantısı kullandığı için güçlü sistem yetkilerine sahiptir.
+Host:
 
-Aşağıdaki güvenlik kurallarına dikkat edilmelidir:
+```bash
+sudo smartctl --scan-open
+```
 
-* `.env` dosyasını GitHub’a yüklemeyin.
-* Telegram bot tokenini kimseyle paylaşmayın.
-* Bot yalnızca kendi Telegram kullanıcı ID’nize izin vermelidir.
-* Repository içerisinde gerçek token bulundurmayın.
-* Docker socket erişiminin root seviyesine yakın yetki sağladığını unutmayın.
-* Raspberry Pi üzerindeki SSH erişimini güçlü parola veya SSH anahtarıyla koruyun.
-* Gereksiz portları internete açmayın.
-* Portainer’ı doğrudan internete açık bırakmayın.
-* Bot tokeni sızarsa BotFather üzerinden tokeni iptal edip yenisini oluşturun.
+USB-SATA/NVMe bridge SMART passthrough desteklemiyorsa bazı değerler okunamayabilir.
 
-### `.gitignore` örneği
+---
+
+## Host araçları çalışmıyor
+
+Kontrol:
+
+```env
+HOST_TOOLS_ENABLED=true
+```
+
+SSH test:
+
+```bash
+ssh -i secrets/host_ssh_key \
+  -o StrictHostKeyChecking=yes \
+  -o UserKnownHostsFile=secrets/known_hosts \
+  piassistant@127.0.0.1 throttled
+```
+
+---
+
+## Dosya indirilemiyor
+
+URL downloader bilinçli olarak private/non-global hedefleri reddeder.
+
+Kontrol edin:
+
+- URL `http://` veya `https://` mi?
+- Port `DOWNLOAD_ALLOWED_PORTS` içinde mi?
+- Hedef public IP'ye mi çözülüyor?
+- Dosya maksimum boyuttan küçük mü?
+- SSD'de `DOWNLOAD_MIN_FREE_GB` kadar alan kalıyor mu?
+
+---
+
+# Güvenlik
+
+Pi Assistant güçlü Docker ve opsiyonel host erişimine sahiptir.
+
+Aşağıdaki kurallara dikkat edin:
+
+- `BOT_TOKEN` public repository'ye yazılmamalıdır.
+- `ALLOWED_USER_ID` doğru kullanıcıya ait olmalıdır.
+- Private SSH key GitHub'a yüklenmemelidir.
+- `secrets/` içindeki gerçek key'ler `.gitignore` / `.dockerignore` kapsamında tutulmalıdır.
+- Docker socket root seviyesine yakın güçlü yetki sağlar.
+- Bot rastgele shell/terminal çalıştırmaz.
+- Host komutları forced-command + allowlist ile sınırlandırılır.
+- Kritik işlemler süreli ikinci onay ister.
+- URL downloader private/non-global hedefleri engeller.
+- Dosya yöneticisi yalnız izinli upload/download alanlarına yazar.
+- Portainer'ı doğrudan internete açmak yerine VPN/Tailscale veya güvenli reverse proxy yöntemleri tercih edin.
+- Bot token sızarsa BotFather üzerinden tokenı iptal edip yenileyin.
+- Kullanılmayan volume cleanup veri kaybına yol açabilir; dikkatli kullanın.
+
+### Önerilen `.gitignore`
 
 ```gitignore
 .env
-data/
+secrets/*
+!secrets/.gitkeep
 __pycache__/
 *.pyc
 ```
 
-### Yanlışlıkla `.env` Git’e eklendiyse
+---
 
-Git takibinden çıkarın:
+# Smoke Test
 
-```bash
-git rm --cached .env
-```
-
-Ardından commit oluşturun:
+V5 paketi temel statik kontroller için smoke test içerir.
 
 ```bash
-git commit -m "Remove environment file"
+chmod +x scripts/smoke-test.sh
+./scripts/smoke-test.sh
 ```
 
-Token GitHub’a yüklendiyse yalnızca dosyayı silmek yeterli değildir. BotFather üzerinden token yenilenmelidir.
+Kontrol edilen başlıklar:
+
+- Python syntax
+- Shell syntax
+- Compose kritik mount/log yapısı
+- Forced-command bilinmeyen komut deny testi
+- Callback data uzunluk kontrolü
+- V5 kritik özellik izleri
+- Paket içinde bariz secret/private-key izi kontrolü
+
+---
+
+# Lisans
+
+Bu proje **MIT License** altında yayımlanır. Ayrıntılar için repository'deki `LICENSE` dosyasına bakın.
+
+---
+
+# Katkı
+
+Bug report, geliştirme önerisi ve pull request'ler değerlidir.
+
+Örnek akış:
+
+```bash
+git checkout -b feature/my-feature
+git add .
+git commit -m "Add my feature"
+git push origin feature/my-feature
+```
+
+Ardından GitHub üzerinden Pull Request oluşturabilirsiniz.
 
 ---
 
 # English
 
-## About the Project
+## About
 
-Pi Assistant is designed to monitor a Raspberry Pi system running Docker and manage Docker containers remotely through Telegram.
+**Pi Assistant Loruv V5 FINAL** is a self-hosted Telegram management assistant for Raspberry Pi and compatible Linux/Docker hosts.
 
-The application can:
+V5 combines host monitoring, Docker management, real host processes, network ports, SSD/SMART information, systemd services, internet diagnostics, file transfers and selected host-control actions in one Telegram interface.
 
-* Send a Telegram notification when the Raspberry Pi or bot container starts.
-* Monitor CPU, RAM, disk usage, and CPU temperature.
-* Send alerts when configured thresholds are exceeded.
-* Notify the user when the internet connection is lost or restored.
-* Detect and report public IP address changes.
-* List Docker containers.
-* Start, stop, and restart Docker containers through Telegram.
-* Accept commands only from an authorized Telegram user.
+The design focuses on three principles:
 
-Pi Assistant is suitable for home servers, homelabs, Raspberry Pi devices, and small self-hosted environments.
+1. **Powerful management** — reduce the need to SSH into the server for everyday tasks.
+2. **Restricted privilege** — never expose a generic remote shell through Telegram.
+3. **SSD-friendly operation** — avoid unnecessary persistent telemetry and uncontrolled logs.
+
+Only the Telegram account configured through `ALLOWED_USER_ID` is authorized by default.
 
 ---
 
-## Features
+# V5 Final Features
 
-### System Monitoring
+## 📊 Host monitoring
 
-* CPU usage
-* RAM usage
-* Disk usage
-* Raspberry Pi CPU temperature
-* Sent network data
-* Received network data
-* System uptime
-* Local IP address
-* Public IP address
+- Raspberry Pi model
+- Hostname / OS / kernel / architecture
+- Uptime and boot time
+- CPU usage and frequency
+- Physical/logical CPUs
+- Load average
+- CPU temperature
+- RAM details
+- Swap usage
+- Disk capacity and I/O
+- Local IP
+- Public IP
+- Network RX/TX
+- Threshold alerts and recovery notifications
 
-### Automatic Notifications
+## 🩺 Health center
 
-Pi Assistant can send Telegram notifications when:
+A consolidated view for:
 
-* The bot container starts
-* The Raspberry Pi restarts
-* CPU usage exceeds the configured threshold
-* RAM usage exceeds the configured threshold
-* Disk usage exceeds the configured threshold
-* CPU temperature becomes too high
-* Internet connectivity is lost
-* Internet connectivity is restored
-* The public IP address changes
-* System values return to normal
+- CPU
+- RAM
+- Swap
+- Disk
+- Temperature
+- Load
+- Internet connectivity
+- Docker daemon
+- Host process visibility
+- Optional SMART / power / systemd status
 
-### Docker Management
+## ⚙️ Real host process manager
 
-* List all containers
-* Display container status
-* Start containers
-* Stop containers
-* Restart containers
-* Display container image information
+The compose file mounts the real host procfs:
+
+```yaml
+- /proc:/host/proc:ro
+```
+
+and V5 points psutil to:
+
+```python
+psutil.PROCFS_PATH = "/host/proc"
+```
+
+This allows the bot to inspect the Raspberry Pi host processes instead of only its own container namespace.
+
+Features include:
+
+- Process count and status summary
+- Sort by CPU
+- Sort by RAM
+- Sort by disk I/O
+- Search by PID/name/command line
+- PPID and username
+- CPU/core/nice
+- RSS/VMS
+- Thread count
+- Read/write I/O
+- Open files
+- INET connections
+- Process start time and uptime
+- Executable, CWD and command line
+
+## 🐳 Docker management
+
+- List all containers
+- Start / stop / restart
+- Pause / resume
+- Health status
+- Image and container details
+- Ports and IP addresses
+- Mounts and resource limits
+- CPU/RAM/network/block-I/O stats
+- Telegram log view
+- Export container logs as `.txt`
+- Images, networks and volumes
+- Docker disk usage
+- Controlled cleanup operations
+
+## 🔍 Check all Docker updates with one button
+
+V5 can check the registry image for all eligible containers in a single operation.
+
+The check itself does not recreate running containers.
+
+Results are reported as:
+
+- Up to date
+- Update available
+- Ignored
+- Could not check
+
+Available updates can then be applied in a separate confirmed bulk-update flow.
+
+Safety mechanisms include:
+
+- Confirmation token
+- Ordered updates
+- Health waiting
+- Rollback attempt
+- Optional stop-on-first-error
+- Update ignore list
+- Self-container protection
+- Refusal of unsafe generic recreate scenarios
+
+## 🔌 Docker and host ports
+
+V5 shows:
+
+- Container
+- Host IP/port
+- Container port
+- TCP/UDP
+- Published ports
+- Unpublished exposed ports
+- `0.0.0.0` / `::` binding warnings
+- Host listening sockets
+- PID/process owning a listening port
+
+## 💿 SSD / SMART
+
+When host tools are enabled, V5 can display supported SMART information such as:
+
+- Device/model/serial/firmware
+- Capacity/protocol
+- SMART overall health
+- Temperature
+- Power-on hours
+- Power cycles
+- Reallocated/pending/uncorrectable sectors
+- CRC errors
+- NVMe percentage used
+- Available spare
+- Media errors
+- Unsafe shutdowns
+- NVMe read/write estimates
+
+It can also export `smartctl -x` as a text report and start short/long SMART self-tests after confirmation.
+
+## ⚡ Raspberry Pi power monitoring
+
+Using `vcgencmd`:
+
+- Undervoltage
+- Historical undervoltage
+- Throttling
+- Historical throttling
+- Frequency cap
+- Soft temperature limit
+- Core voltage
+- ARM clock
+- Firmware information
+
+## 🌐 Network diagnostics
+
+- Local/public IP
+- Interfaces
+- IPv4/IPv6
+- MTU/link speed
+- RX/TX/errors/drops
+- Gateway connectivity
+- Public DNS connectivity
+- DNS resolution test
+- Packet loss and latency
+- Speedtest
+- Internet down/recovery alerts
+- Public-IP change alerts
+
+## 📥 Secure URL downloader
+
+Files can be downloaded to:
+
+```text
+/srv/downloads
+```
+
+with:
+
+- HTTP/HTTPS only
+- SSRF filtering
+- Redirect re-validation
+- Port allowlist
+- Streaming downloads
+- Size and free-space limits
+- `.part` temporary files
+- Atomic rename
+- SHA-256
+- Progress, rate and ETA
+
+## 📁 File manager
+
+Writable file-manager roots are intentionally limited to:
+
+```text
+/srv/downloads
+/srv/uploads
+```
+
+The bot can list, inspect, hash, send and delete files in those areas after the required confirmation flow.
+
+Documents sent to the bot can also be stored in `/srv/uploads` when they satisfy configured limits.
+
+## 🧩 systemd
+
+Optional host tools provide:
+
+- Service list
+- Active/sub state
+- Main PID
+- Memory and CPU time
+- Restart count
+- Result/unit-file state
+- Failed-service monitoring
+- Journal export as `.txt`
+- Allowlisted service restart
+
+## 🕒 Bounded event history
+
+V5 does not store continuous system telemetry in a database. It persists only a bounded list of important events, such as connectivity changes, threshold alarms, Docker state changes, updates and file operations.
 
 ---
 
-## Telegram Commands
+# Telegram Commands
 
-| Command                      | Description                                                           |
-| ---------------------------- | --------------------------------------------------------------------- |
-| `/start`                     | Displays the welcome message and basic commands                       |
-| `/yardim`                    | Displays the available commands                                       |
-| `/durum`                     | Displays CPU, RAM, disk, temperature, network, and uptime information |
-| `/docker`                    | Lists Docker containers and their status                              |
-| `/ip`                        | Displays local and public IP addresses                                |
-| `/baslat <container>`        | Starts the specified container                                        |
-| `/durdur <container>`        | Stops the specified container                                         |
-| `/yenidenbaslat <container>` | Restarts the specified container                                      |
+| Command | Description |
+| --- | --- |
+| `/start` | Start the bot / show menu |
+| `/menu` | Main management menu |
+| `/durum` | Host status report |
+| `/docker` | Docker center |
+| `/surecler` | Real host processes |
+| `/ag` | Network report |
+| `/depolama` | Disk and I/O report |
+| `/ip` | Local and public IP |
+| `/portlar` | Docker + host listening ports |
+| `/dosyalar` | Download/upload file manager |
+| `/olaylar` | Recent important events |
+| `/araclar` | Raspberry Pi/SMART/systemd host tools |
+| `/servisler` | systemd services |
+| `/smart` | SSD / SMART information |
+| `/speedtest` | Internet speed test |
+| `/rapor` | Diagnostic/log `.txt` reports |
+| `/yardim` | Help / main menu |
 
-### Command examples
-
-```text
-/durum
-```
-
-```text
-/docker
-```
-
-```text
-/ip
-```
-
-```text
-/baslat nginx-proxy-manager
-```
-
-```text
-/durdur nginx-proxy-manager
-```
-
-```text
-/yenidenbaslat nginx-proxy-manager
-```
-
-The container name must match the name displayed by the `/docker` command.
+Most V5 functions are also available through Telegram inline buttons, so typing commands is usually unnecessary.
 
 ---
 
-## Requirements
+# Requirements
 
-Before installation, make sure the following components are available:
+Base deployment:
 
-* Raspberry Pi
-* 64-bit Raspberry Pi OS or a compatible Linux distribution
-* Docker Engine
-* Docker Compose plugin
-* Portainer, optional
-* Telegram account
-* Telegram bot created with BotFather
-* Internet connection
+- Raspberry Pi or compatible Linux host
+- Docker Engine
+- Docker Compose plugin
+- Internet connection
+- Telegram account and BotFather bot
+- Portainer optional but recommended
 
-Check the Docker version:
+Optional host tools:
 
-```bash
-docker --version
-```
-
-Check the Docker Compose version:
-
-```bash
-docker compose version
-```
-
-Check the Docker service:
-
-```bash
-sudo systemctl status docker
-```
+- OpenSSH server
+- `smartmontools`
+- `vcgencmd` on Raspberry Pi
+- systemd/journalctl
+- Ookla `speedtest` or compatible `speedtest-cli`
 
 ---
 
-## Project Structure
+# Portainer Repository Deployment — Recommended
 
-```text
-pi-assistant-loruv/
-├── bot.py
-├── compose.yaml
-├── Dockerfile
-├── requirements.txt
-├── .env.example
-├── .gitignore
-├── README.md
-└── data/
-```
-
-### File descriptions
-
-| File               | Description                                                 |
-| ------------------ | ----------------------------------------------------------- |
-| `bot.py`           | Main Python code for the Telegram bot and system monitoring |
-| `compose.yaml`     | Docker Compose configuration                                |
-| `Dockerfile`       | Defines how the Docker image is built                       |
-| `requirements.txt` | Contains the required Python packages                       |
-| `.env.example`     | Example environment configuration                           |
-| `.env`             | Contains private settings such as the bot token and user ID |
-| `.gitignore`       | Defines files that must not be committed                    |
-| `data/`            | Stores persistent data such as the last known public IP     |
-
-> The `.env` file contains sensitive information and must never be committed to GitHub.
-
----
-
-## Creating a Telegram Bot
-
-### 1. Open BotFather
-
-Open the official Telegram bot:
-
-```text
-@BotFather
-```
-
-### 2. Create a new bot
-
-Send:
-
-```text
-/newbot
-```
-
-Choose a name and username for your bot.
-
-BotFather will provide a token similar to:
-
-```text
-123456789:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
-
-This value will be used as `BOT_TOKEN`.
-
-### 3. Start the bot
-
-Open your newly created bot and send:
-
-```text
-/start
-```
-
-### 4. Find your Telegram user ID
-
-Use a Telegram user information bot or the Telegram API to determine your numeric user ID.
-
-Example:
-
-```text
-123456789
-```
-
-This value will be used as `ALLOWED_USER_ID`.
-
----
-
-## Installation with Git
-
-This method clones the GitHub repository directly onto the Raspberry Pi.
-
-### 1. Open the Docker directory
-
-```bash
-cd /srv/docker
-```
-
-Create it if it does not exist:
-
-```bash
-sudo mkdir -p /srv/docker
-```
-
-Grant ownership to the current user:
-
-```bash
-sudo chown -R $USER:$USER /srv/docker
-```
-
-Then:
-
-```bash
-cd /srv/docker
-```
-
-### 2. Clone the repository
-
-```bash
-git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
-```
-
-Example:
-
-```bash
-git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
-```
-
-### 3. Open the project directory
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-```
-
-### 4. Create the environment file
-
-```bash
-cp .env.example .env
-```
-
-### 5. Edit the environment file
-
-```bash
-nano .env
-```
-
-Example configuration:
-
-```env
-BOT_TOKEN=YOUR_BOT_TOKEN
-ALLOWED_USER_ID=YOUR_TELEGRAM_USER_ID
-
-CHECK_INTERVAL=60
-CPU_LIMIT=90
-RAM_LIMIT=90
-DISK_LIMIT=90
-TEMP_LIMIT=75
-PUBLIC_IP_CHECK_URL=https://api.ipify.org
-```
-
-Save in Nano:
-
-```text
-Ctrl + O
-Enter
-Ctrl + X
-```
-
-### 6. Build and start the container
-
-```bash
-sudo docker compose up -d --build
-```
-
-### 7. Check the container status
-
-```bash
-sudo docker compose ps
-```
-
-### 8. View logs
-
-```bash
-sudo docker compose logs -f
-```
-
-After a successful installation, a startup notification should be delivered through Telegram.
-
----
-
-## Manual File Installation
-
-This method is intended for users who want to upload the project files manually without using Git.
-
-Files may be transferred using SFTP, SCP, File Browser, or another file transfer method.
-
-### Target directory
-
-```text
-/srv/docker/pi-assistant-loruv
-```
-
-### 1. Create the project directory
-
-```bash
-sudo mkdir -p /srv/docker/pi-assistant-loruv
-```
-
-### 2. Configure directory ownership
-
-```bash
-sudo chown -R $USER:$USER /srv/docker/pi-assistant-loruv
-```
-
-### 3. Upload the project files
-
-Upload the following files into `/srv/docker/pi-assistant-loruv`:
-
-```text
-bot.py
-compose.yaml
-Dockerfile
-requirements.txt
-.env.example
-.gitignore
-README.md
-```
-
-Create the persistent data directory:
-
-```bash
-mkdir -p /srv/docker/pi-assistant-loruv/data
-```
-
-### 4. Verify the files
-
-```bash
-ls -la /srv/docker/pi-assistant-loruv
-```
-
-### 5. Open the project directory
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-```
-
-### 6. Create the `.env` file
-
-```bash
-cp .env.example .env
-```
-
-### 7. Configure the application
-
-```bash
-nano .env
-```
-
-### 8. Build the container
-
-```bash
-sudo docker compose up -d --build
-```
-
-### 9. Check the status
-
-```bash
-sudo docker compose ps
-```
-
-### 10. View logs
-
-```bash
-sudo docker compose logs -f
-```
-
----
-
-
-## Portainer Repository Installation and Total Control
-
-When Pi Assistant is created from the terminal with `docker compose`, Portainer may detect the stack but display its management level as **Limited**.
-
-You can continue managing it from the terminal or recreate it through Portainer’s **Repository** method to obtain **Total control**.
-
-### Managing from the terminal
-
-Open the project directory:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-```
-
-Restart the container:
-
-```bash
-sudo docker compose restart
-```
-
-Rebuild the image after changing files such as `bot.py`, `Dockerfile`, or `requirements.txt`:
-
-```bash
-sudo docker compose up -d --build
-```
-
-Stop and remove the container:
-
-```bash
-sudo docker compose down
-```
-
-### Deploying with Total control in Portainer
-
-If the stack is already running from a terminal deployment, remove it first:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose down
-```
-
-> Do not use `docker compose down -v`. The `-v` option may delete volume data.
-
-Then open the following page in Portainer:
+Open:
 
 ```text
 Stacks
@@ -1536,67 +1925,28 @@ Stacks
 → Repository
 ```
 
-Enter the following values:
+Use:
 
 | Field | Value |
 | --- | --- |
 | Name | `pi-assistant-loruv` |
 | Repository URL | `https://github.com/emrecagri/Pi-Assistant-Loruv` |
-| Repository reference | `main` |
-| Compose path | `compose.yaml` |
+| Repository reference | `refs/heads/main` |
+| Compose path | `compose.yml` |
+| Authentication | Off for a public repository |
+| Skip TLS Verification | Off |
+| GitOps updates | Off initially is recommended |
 
-Authentication is not required when the repository is public.
-
-### Add the environment variables
-
-Find the following section in Portainer:
-
-```text
-Environment variables
-```
-
-Select **Advanced mode** and paste:
+Add at least these Portainer environment variables:
 
 ```env
 BOT_TOKEN=YOUR_REAL_TELEGRAM_BOT_TOKEN
 ALLOWED_USER_ID=YOUR_REAL_TELEGRAM_USER_ID
-CHECK_INTERVAL=60
-CPU_LIMIT=90
-RAM_LIMIT=90
-DISK_LIMIT=90
-TEMP_LIMIT=75
-PUBLIC_IP_CHECK_URL=https://api.ipify.org
 ```
 
-Replace the following fields with your own values:
+Then deploy the stack.
 
-```text
-BOT_TOKEN
-ALLOWED_USER_ID
-```
-
-The real bot token and user ID are not written to the GitHub repository. They are stored only in the Portainer stack environment variables.
-
-### Deploy the stack
-
-After completing the settings, click:
-
-```text
-Deploy the stack
-```
-
-Portainer clones the repository, builds the image, and starts the container.
-
-After deployment, the stack appears with **Total control** in Portainer. You can then:
-
-* Start and stop the stack
-* Restart the container
-* View logs
-* Update environment variables
-* Pull new code from the repository and redeploy
-* Recreate the stack
-
-After updating the GitHub repository, use:
+After a new GitHub commit:
 
 ```text
 Stacks
@@ -1604,367 +1954,152 @@ Stacks
 → Pull and redeploy
 ```
 
-### Note about terminal deployments
-
-When the project is deployed from the terminal instead of Portainer, the `.env` file in the project directory is read automatically:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
-```
-
-> Do not try to create the same container from the terminal and Portainer at the same time. Choose one management method.
+> If your repository uses `compose.yaml` rather than `compose.yml`, enter the exact filename in Portainer.
 
 ---
 
-## Managing with Portainer
-
-After the image has been built, the Pi Assistant container will appear in Portainer.
-
-Open:
-
-```text
-Containers
-→ pi-assistant-loruv
-```
-
-Portainer can be used to:
-
-* Start the container
-* Stop the container
-* Restart the container
-* View logs
-* View resource statistics
-* Inspect container details
-
-### Important
-
-Restarting the container in Portainer only restarts the existing Docker image.
-
-When `bot.py`, `Dockerfile`, or `requirements.txt` is changed, rebuild the image:
+# Local Git Deployment
 
 ```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
+cd /srv/docker
+git clone https://github.com/emrecagri/Pi-Assistant-Loruv.git
+cd Pi-Assistant-Loruv
 ```
 
----
+Create persistent directories:
 
-## Configuration
+```bash
+sudo mkdir -p /srv/docker/pi-assistant /srv/downloads /srv/uploads
+sudo chown -R "$USER":"$USER" /srv/docker/pi-assistant /srv/downloads /srv/uploads
+```
 
-The application is configured through the `.env` file.
+Create `.env`:
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+Minimum:
 
 ```env
-BOT_TOKEN=YOUR_BOT_TOKEN
-ALLOWED_USER_ID=YOUR_TELEGRAM_USER_ID
-
-CHECK_INTERVAL=60
-CPU_LIMIT=90
-RAM_LIMIT=90
-DISK_LIMIT=90
-TEMP_LIMIT=75
-PUBLIC_IP_CHECK_URL=https://api.ipify.org
+BOT_TOKEN=YOUR_REAL_TELEGRAM_BOT_TOKEN
+ALLOWED_USER_ID=YOUR_REAL_TELEGRAM_USER_ID
 ```
 
-### Environment variables
-
-| Variable              | Description                              | Example                 |
-| --------------------- | ---------------------------------------- | ----------------------- |
-| `BOT_TOKEN`           | Telegram bot token provided by BotFather | `123456:AA...`          |
-| `ALLOWED_USER_ID`     | Authorized Telegram user ID              | `123456789`             |
-| `CHECK_INTERVAL`      | Monitoring interval in seconds           | `60`                    |
-| `CPU_LIMIT`           | CPU alert threshold                      | `90`                    |
-| `RAM_LIMIT`           | RAM alert threshold                      | `90`                    |
-| `DISK_LIMIT`          | Disk alert threshold                     | `90`                    |
-| `TEMP_LIMIT`          | Temperature threshold in Celsius         | `75`                    |
-| `PUBLIC_IP_CHECK_URL` | Public IP lookup service                 | `https://api.ipify.org` |
-
----
-
-## Updating the Code
-
-### After changing `bot.py`
-
-A normal container restart is not enough because `bot.py` is copied into the Docker image during the build process.
-
-Rebuild the image:
+Build and start:
 
 ```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
-```
-
-### After changing `requirements.txt`
-
-When a Python dependency is added or changed:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
-```
-
-### After changing the `Dockerfile`
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
-```
-
-### After changing `compose.yaml`
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d
-```
-
-Use the following when the change also affects the image:
-
-```bash
-sudo docker compose up -d --build
-```
-
-### After changing `.env`
-
-Recreate the container:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --force-recreate
-```
-
-Alternatively:
-
-```bash
-sudo docker compose down
-sudo docker compose up -d
-```
-
-### Updating from GitHub
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-git pull
-sudo docker compose up -d --build
-```
-
-### Rebuilding without Docker cache
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose build --no-cache
-sudo docker compose up -d
-```
-
-### Verify after updating
-
-```bash
-sudo docker compose ps
-```
-
-```bash
-sudo docker compose logs -f
+docker compose -f compose.yml up -d --build
 ```
 
 ---
 
-## Viewing Logs
+# Optional Host Tools
 
-View live logs:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose logs -f
-```
-
-View the last 100 lines:
+Install the host helper on the Raspberry Pi/Linux host:
 
 ```bash
-sudo docker compose logs --tail=100
+sudo ./host/install-host-helper.sh
 ```
 
-View logs directly from the container:
+Install SMART tooling:
 
 ```bash
-sudo docker logs -f pi-assistant-loruv
+sudo apt update
+sudo apt install -y smartmontools
 ```
 
-Exit log streaming with:
+Host operations use a restricted SSH forced-command gateway rather than a generic remote shell.
 
-```text
-Ctrl + C
+Enable them only after the helper/key setup is complete:
+
+```env
+HOST_TOOLS_ENABLED=true
+HOST_CONTROL_ENABLED=true
 ```
 
-This does not stop the container.
+For Portainer Repository deployment, keep the real SSH private key outside the public Git repository. An absolute host secret directory such as `/srv/docker/pi-assistant/secrets` is recommended.
 
 ---
 
-## Troubleshooting
+# Configuration
 
-### No Telegram message is received
-
-Check:
-
-1. Is the bot token correct?
-2. Is the authorized user ID correct?
-3. Did you send `/start` to the bot?
-4. Is the Raspberry Pi connected to the internet?
-5. Is the container running?
-
-```bash
-sudo docker compose ps
-```
-
-View logs:
-
-```bash
-sudo docker compose logs -f
-```
-
-### The container keeps restarting
-
-```bash
-sudo docker logs --tail=100 pi-assistant-loruv
-```
-
-Verify the environment file:
-
-```bash
-cat .env
-```
-
-Do not share the output publicly because it may contain the bot token.
-
-### Docker containers cannot be listed
-
-Verify that the following volume exists in `compose.yaml`:
+The compose file uses variable interpolation:
 
 ```yaml
-volumes:
-  - /var/run/docker.sock:/var/run/docker.sock
+BOT_TOKEN: "${BOT_TOKEN}"
+ALLOWED_USER_ID: "${ALLOWED_USER_ID}"
+CHECK_INTERVAL: "${CHECK_INTERVAL:-60}"
+TEMP_LIMIT: "${TEMP_LIMIT:-75}"
+LOG_LEVEL: "${LOG_LEVEL:-WARNING}"
 ```
 
-Check the Docker socket:
+Only `BOT_TOKEN` and `ALLOWED_USER_ID` need to be supplied for a basic deployment. Other values can use their compose defaults and be overridden later through Portainer environment variables or a local `.env` file.
 
-```bash
-ls -l /var/run/docker.sock
-```
+---
 
-### CPU temperature cannot be read
+# SSD-Friendly Design
 
-Verify the thermal volume:
+V5 minimizes unnecessary storage writes:
+
+- Default Python log level: `WARNING`
+- Docker `local` logging driver
+- Small rotating bot logs
+- Read-only container root filesystem
+- `/tmp` mounted as tmpfs
+- No continuous telemetry database
+- Bounded event history
+- Disk-write trend sampled in RAM
+- Automatic SMART polling disabled by default
+
+Example logging configuration:
 
 ```yaml
-volumes:
-  - /sys/class/thermal:/host/sys/class/thermal:ro
-```
-
-Check the temperature file:
-
-```bash
-cat /sys/class/thermal/thermal_zone0/temp
-```
-
-### Code changes are not applied
-
-Rebuild the image:
-
-```bash
-cd /srv/docker/pi-assistant-loruv
-sudo docker compose up -d --build
-```
-
-If necessary, rebuild without cache:
-
-```bash
-sudo docker compose build --no-cache
-sudo docker compose up -d
+logging:
+  driver: local
+  options:
+    max-size: "2m"
+    max-file: "2"
 ```
 
 ---
 
-## Security
+# Security
 
-Pi Assistant has powerful access because it connects to the Docker socket.
-
-Follow these security recommendations:
-
-* Never commit the `.env` file.
-* Never publish the Telegram bot token.
-* Allow only your own Telegram user ID.
-* Do not store real credentials in public source files.
-* Protect SSH access with a strong password or SSH key.
-* Do not expose unnecessary ports to the internet.
-* Do not expose Portainer directly to the public internet.
-* Regenerate the bot token through BotFather if it is compromised.
-* Understand that access to the Docker socket is close to root-level access.
-
-### Recommended `.gitignore`
-
-```gitignore
-.env
-data/
-__pycache__/
-*.pyc
-```
+- Never commit a real `BOT_TOKEN`.
+- Never commit the host SSH private key.
+- Restrict bot access through `ALLOWED_USER_ID`.
+- Docker socket access is highly privileged.
+- V5 intentionally provides no generic Telegram shell.
+- Host commands pass through a forced-command allowlist gateway.
+- Destructive actions require short-lived, single-use confirmation tokens.
+- The URL downloader rejects private/non-global targets by default.
+- File management is limited to explicitly mounted upload/download directories.
+- Be careful with volume cleanup operations.
+- Prefer VPN/Tailscale or another secure access layer rather than exposing management services directly to the public internet.
 
 ---
 
-## Roadmap
-
-Planned improvements may include:
-
-* Docker container logs through Telegram
-* Container CPU and RAM statistics
-* Inline Telegram buttons
-* Scheduled system reports
-* SSH login alerts
-* Disk SMART monitoring
-* Fan control
-* Docker image update notifications
-* Multiple authorized users
-* Web dashboard
-* Role-based access control
-* Backup notifications
-* Plugin system
-
----
-
-## Contributing
-
-Contributions, bug reports, suggestions, and feature requests are welcome.
-
-Recommended workflow:
-
-1. Fork the repository.
-2. Create a new branch.
-3. Make your changes.
-4. Test the changes.
-5. Submit a Pull Request.
-
-Example:
+# Smoke Test
 
 ```bash
-git checkout -b feature/new-command
+chmod +x scripts/smoke-test.sh
+./scripts/smoke-test.sh
 ```
 
-```bash
-git add .
-git commit -m "Add new Telegram command"
-git push origin feature/new-command
-```
+The script checks core Python/shell syntax, compose assumptions, forced-command denial behavior, callback sizes and common secret-packaging mistakes.
 
 ---
 
-## License
+# License
 
-This project may be distributed under the MIT License.
-
-Add a `LICENSE` file to the repository before publishing the project as open source.
+Licensed under the **MIT License**. See `LICENSE` for details.
 
 ---
 
-## Support
+# Contributing
 
-If this project is useful to you, consider starring the repository.
+Issues, suggestions and pull requests are welcome.
 
-A GitHub star helps other users discover the project and supports future development.
+If Pi Assistant Loruv is useful to you, consider starring the repository.
